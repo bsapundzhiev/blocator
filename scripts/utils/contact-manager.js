@@ -48,6 +48,7 @@ var ContactManager = {
         console.log(contact);
 
         if (this.isContactsApiSupported() === false) {
+            console.log("isContactsApiSupported == false");
             errorCallback();
             return;
         }

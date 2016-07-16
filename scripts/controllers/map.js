@@ -10,11 +10,12 @@ function Map(options) {
     this.searchInput = null;
     this.searchButton = null;
     this.currentPosition = null;
-    this.defaultZoom = 15;
+    this.defaultZoom = 13; //15;
     this.defaultPosition = {
+	
         coords: {
-            longitude: 12.4830619,
-            latitude: 41.8932575
+            longitude: 25.6462243,
+            latitude: 43.0907923
         }
     };
 }
