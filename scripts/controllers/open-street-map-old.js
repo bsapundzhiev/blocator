@@ -24,46 +24,25 @@ OpenStreetMap.prototype = {
     initMap: function() {
         Map.prototype.initMap.call(this);
 
-        /* Clear search input value */
-        this.searchInput.value = '';
+        /* Initialize superclass attributes */
+        this.map = new OpenLayers.Map(this.mapId);
 
-        var trackStyle = new ol.style.Style({
-            stroke: new ol.style.Stroke({
-              color: 'rgba(0,0,255,1.0)',
-              width: 3,
-              lineCap: 'round'
-            })
-        });
+        /* Initialize OpenStreetMap attributes */
+        this.mapnik = new OpenLayers.Layer.OSM(); // This layer allows accessing OpenStreetMap tiles
+        this.fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
+        this.toProjection = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+        this.markers = new OpenLayers.Layer.Markers("Markers");
 
-        // use a single feature with a linestring geometry to display our track
-        var trackFeature = new ol.Feature({
-            geometry: new ol.geom.LineString([])
-        });
-
-        this.map = new ol.Map({
-            target:this.mapId,
-            renderer:'canvas',
-            view: new ol.View({
-                projection: 'EPSG:900913',
-            })
-        });
-
-        this.mapnik = new ol.layer.Tile({
-            source: new ol.source.OSM()
-        });
-
-        this.markers = new ol.layer.Tile({
-            source: new ol.source.OSM()
-        });
-
+        /* Add layers */
+        this.map.addLayer(this.mapnik);
         this.map.addLayer(this.markers);
 
-        var osmPosition = new ol.proj.transform([this.defaultPosition.coords.longitude, this.defaultPosition.coords.latitude],
-                                'EPSG:4326', // essentially LonLat
-                                this.map.getView().getProjection());
+        /* Show the map */
+        var osmPosition = new OpenLayers.LonLat(this.defaultPosition.coords.longitude, this.defaultPosition.coords.latitude).transform(this.fromProjection, this.toProjection);
+        this.map.setCenter(osmPosition, this.defaultZoom);
 
-        this.map.getView().setCenter(osmPosition);
-        this.map.getView().setZoom(this.defaultZoom);
+        /* Clear search input value */
+        this.searchInput.value = '';
     },
     /*
      * initSearchBox
@@ -92,62 +71,22 @@ OpenStreetMap.prototype = {
         var plat = position.coords.latitude;
 
         /* Calculate the OpenStreetMap position */
-        var osmPosition = new ol.proj.transform([plon, plat],
-                                'EPSG:4326', // essentially LonLat
-                                this.map.getView().getProjection());
+        var osmPosition = new OpenLayers.LonLat(plon, plat).transform(this.fromProjection, this.toProjection);
 
         /* Set the center of the map */
-        this.map.getView().setZoom(this.defaultZoom);
-        this.map.getView().setCenter(osmPosition);
+        this.map.setCenter(osmPosition, this.defaultZoom);
 
         if (this.currentPosition === null) { // if this is the first time this method is invoked
 
+            /* Add a marker to the center */
+            var markerIcon = new OpenLayers.Icon('libs/OpenLayers/img/marker.png');
+            this.markers.addMarker(new OpenLayers.Marker(osmPosition, markerIcon));
+
+            /* Show POIs only the first time this method is called */
+            this.showPOIs(new OpenLayers.LonLat(plon, plat));
+
             /* Keep track of the current position */
             this.currentPosition = osmPosition;
-
-            var iconFeature = new ol.Feature({
-                geometry: new ol.geom.Point(osmPosition)
-            });
-
-            var vectorSource = new ol.source.Vector({
-                features: [iconFeature]
-            });
-
-            /*var iconStyle = new ol.style.Style({
-                image: new ol.style.Icon(({
-                  anchor: [0.5, 46],
-                  anchorXUnits: 'fraction',
-                  anchorYUnits: 'pixels',
-                  opacity: 0.75,
-                  src: 'libs/OpenLayers/img/marker.png'
-                }))
-            });*/
-
-            var iconStyle = [
-                new ol.style.Style({
-                    image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-                        anchor: [0.5, 1],
-                        anchorXUnits: 'fraction',
-                        anchorYUnits: 'fraction',
-                        src: 'libs/OpenLayers/img/marker.png',
-                    }))
-                }),
-                new ol.style.Style({
-                    text: new ol.style.Text({
-                        text: "Point Label",
-                        offsetY: 8,
-                        fill: new ol.style.Fill({
-                            color: '#000'
-                        })
-                    })
-                })
-            ];
-
-            var vectorLayer = new ol.layer.Vector({
-                source: vectorSource,
-                style:iconStyle
-            });
-            this.map.addLayer(vectorLayer);
         }
     },
     /*
