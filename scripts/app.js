@@ -14,10 +14,17 @@ var App = {
         MapSwitcher.init();
 
         /* Add default contacts */
-	    LocatorBoard.addParticipant("Borislav");
-	    LocatorBoard.setLocationPoints("Borislav", { coords:{longitude: 25.5996566, latitude: 43.1786099} });
+        LocatorBoard.addParticipant("Borislav");
+        //LocatorBoard.setLocationPoints("Borislav", { coords:{longitude: 25.5996566, latitude: 43.1786099} });
 
-        GeoMap.showPosition(LocatorBoard.getLocationPoints("Borislav"));
+        LocatorBoard.setLocationPoints("Borislav", { coords:{longitude: 25.5996566, latitude: 43.1786099} });
+
+        //GeoMap.showPosition(LocatorBoard.getLocationPoints("Borislav"));
+
+        GeoMap.showLocatorPosition("Borislav", LocatorBoard.getLocationPoints("Borislav"));
+
+        GeolocationBox.updateLocators(LocatorBoard.listParticipants());
+
 
         // JSUtil.getBlobFromImagePath("img/end3r.jpeg", function(blob) {
 

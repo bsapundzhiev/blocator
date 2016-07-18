@@ -56,19 +56,34 @@ var LocatorBoard = (function () {
 		return participants[participantName].getLocation();
 	}
 
-	function listScore () {
-		
+	function listParticipants() {
+		var result =[];
 		for(var name in participants){
 			console.log(participants[name].name + " longitude: " + participants[name].location.coords.longitude + " latitude: " + participants[name].location.coords.latitude);
+			result.push(name);
 		}
+
+		return result;
 	}
+
+    /*
+     * getCurrentPosition
+     * Gets the current position of the device
+     * @param {Function} successCallback
+     * @param {Function} errorCallback
+     * @param {PositionOptions} positionOptions
+     */
+    function getCurrentPosition(successCallback, errorCallback, positionOptions) {
+        console.log('LocatorBoard.getCurrentPosition(successCallback, errorCallback, options)');
+         
+    }
 
 	var publicApi = {
 		addParticipant: addParticipant,
 		setLocationPoints: setLocationPoints,
 		getLocationPoints: getLocationPoints,
-		listScore: listScore
-		
+		listParticipants: listParticipants,
+		getCurrentPosition:getCurrentPosition
 	};
 
 	return publicApi;

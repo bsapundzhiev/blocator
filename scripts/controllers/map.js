@@ -88,5 +88,13 @@ Map.prototype = {
     showPOIs: function(position) {
         console.log('Map.showPOIs(position)');
         console.log(position);
+    },
+
+    /*
+     * show tracked position
+     */
+    showLocatorPosition: function(name, position) {
+        console.log('Map.showLocatorPosition');
+        console.log(name, position);
     }
 };

@@ -13,6 +13,8 @@ var GeolocationBox = {
         this.timeoutInput = document.querySelector('.positionOptions #timeout');
         this.maximumAgeInput = document.querySelector('.positionOptions #maximumAge');
 
+        this.locators = document.querySelector("#locators");
+
         /* Default option values */
         this.defaultEnableHighAccuracy = false;
         this.defaultTimeout = 8000; // 8 seconds
@@ -69,5 +71,15 @@ var GeolocationBox = {
         };
 
         return options;
+    },
+    /*
+     * updateLocators
+     * Show current subscribed locators
+     */
+    updateLocators: function(data) {
+        var template = _.template("<ul>" +
+            "<li><%= names.join('</li><li>') %></li>" +
+            "</ul>");
+        this.locators.innerHTML = template({ names : data });
     }
 };
