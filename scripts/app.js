@@ -1,6 +1,6 @@
 
 var App = {
-    /* 
+    /*
      * init
      * Initialize the app
      */
@@ -25,6 +25,11 @@ var App = {
 
         GeolocationBox.updateLocators(LocatorBoard.listParticipants());
 
+        /*JSUtil.ajaxCall("GET", "https://bsapundzhiev.github.io/geo/", function(blob) {
+            console.log(blob)
+        }, function(err) {
+            alert(err);
+        });*/
 
         // JSUtil.getBlobFromImagePath("img/end3r.jpeg", function(blob) {
 

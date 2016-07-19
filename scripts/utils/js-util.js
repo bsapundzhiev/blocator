@@ -11,18 +11,29 @@ var JSUtil = {
             superClass.prototype.constructor = superClass;
         }
     },
-    getBlobFromImagePath: function(imagePath, successCallback, errorCallback) {
+
+    ajaxCall: function(method, path, successCallback, errorCallback) {
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", imagePath, true);
+        xhr.open(method, path, true);
         xhr.responseType = "arraybuffer";
 
         xhr.onload = function(e) {
-            var arrayBufferView = new Uint8Array(this.response);
-            var blob = new Blob([arrayBufferView], {type: "image/jpeg"});
-            
-            successCallback(blob);
+            successCallback(this.response);
         };
 
+        xhr.onerror = function(e) {
+            errorCallback(e.target.statusText || "ajaxCallerror");
+        }
+
         xhr.send();
+    },
+
+    getBlobFromImagePath: function(imagePath, successCallback, errorCallback) {
+        this.ajaxCall("GET", imagePath, function(response) {
+            var arrayBufferView = new Uint8Array(response);
+            var blob = new Blob([arrayBufferView], {type: "image/jpeg"});
+
+            successCallback(blob);
+        }, errorCallback);
     }
 };

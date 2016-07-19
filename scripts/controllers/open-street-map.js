@@ -15,7 +15,9 @@ function OpenStreetMap(options) { // extends Map
 }
 
 /* OpenStreetMap extends Map */
-JSUtil.extend(OpenStreetMap, Map);
+//JSUtil.extend(OpenStreetMap, Map);
+OpenStreetMap.prototype = Object.create(Map.prototype);
+OpenStreetMap.prototype.constructor = OpenStreetMap;
 
 OpenStreetMap.prototype = {
     /*
@@ -94,16 +96,6 @@ OpenStreetMap.prototype = {
             features: [iconFeature]
         });
 
-        /*var iconStyle = new ol.style.Style({
-            image: new ol.style.Icon(({
-              anchor: [0.5, 46],
-              anchorXUnits: 'fraction',
-              anchorYUnits: 'pixels',
-              opacity: 0.75,
-              src: 'libs/OpenLayers/img/marker.png'
-            }))
-        });*/
-
         var iconStyle = [
             new ol.style.Style({
                 image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
@@ -157,7 +149,7 @@ OpenStreetMap.prototype = {
             this.currentPosition = osmPosition;
 
             this.markers.push(this.createMarker("Default"));
-        } 
+        }
 
         this.markers[0].setCoordinates(osmPosition);
 
@@ -168,7 +160,7 @@ OpenStreetMap.prototype = {
      * @param {Position} position
      */
     showLocatorPosition: function(name, position) {
-       
+
         var osmPosition = new ol.proj.transform([position.coords.longitude, position.coords.latitude],
                                 this.fromProjection, // essentially LonLat
                                 this.map.getView().getProjection());
