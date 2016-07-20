@@ -4,37 +4,54 @@
 "use strict";
 var WSClient = {
 
-    ws: null,
+    socket: null,
+    host: null,
 
     onOpen: function() {
         console.log("onOpen");
     },
 
     onMessageReceived: function(evt) {
-        var received_msg = evt.data;
-        console.log("Message is received..." + received_msg);
+        console.log("onMessageReceived", evt.data);
     },
 
     onClose: function() {
-        console.log("Connection is closed...");
+        console.log("onClose");
     },
 
     onError: function(error) {
-        console.log(error);
+        console.log("onError", error);
     },
 
-    init: function(url, features)
-    {
-        if (!("WebSocket" in window)) {
-           alert("WebSocket is NOT supported!");
-           return;
+    init: function(host, features) {
+        try {
+            if(this.socket) {
+                this.close();
+            }
+            this.socket = new WebSocket(host, features);
+        } catch(ex) {
+            alert(ex.message);
+            return;
         }
 
-        this.ws = new WebSocket(url, features);
-        this.ws.onopen = this.onOpen;
-        this.ws.onmessage = this.onMessageReceived;
-        this.ws.onerror = this.onError;
-        this.ws.onclose = this.onClose;
-    }
+        this.host = host;
+        this.socket.onopen = this.onOpen;
+        this.socket.onmessage = this.onMessageReceived;
+        this.socket.onerror = this.onError;
+        this.socket.onclose = this.onClose;
+    },
 
+    close: function(msg) {
+        this.socket.close();
+        this.socket = null;
+    },
+
+    sendMessage: function() {
+        this.socket.send(msg);
+    },
+
+    reconnect: function() {
+        this.socket.close();
+        this.init(this.host);
+    }
 };

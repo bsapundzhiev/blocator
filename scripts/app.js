@@ -25,6 +25,13 @@ var App = {
 
         GeolocationBox.updateLocators(LocatorBoard.listParticipants());
 
+        var client = Object.create(WSClient);
+        client.init("ws://calipso.no-ip.info:9000/");
+        client.onOpen = function() { alert("Open"); }
+        client.onMessageReceived = function(evt) {
+            console.log("recv: " + evt.data);
+        }
+
         /*JSUtil.ajaxCall("GET", "https://bsapundzhiev.github.io/geo/", function(blob) {
             console.log(blob)
         }, function(err) {
