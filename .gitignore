@@ -1,3 +1,6 @@
+*.zip
 
 /apps/locator/platforms
 /apps/locator/plugins
+/apps/locator/www/libs
+/apps/locator/www/js/controllers

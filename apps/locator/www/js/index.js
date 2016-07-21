@@ -33,7 +33,16 @@ var app = {
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
-        app.receivedEvent('deviceready');
+        //app.receivedEvent('deviceready');
+        // init map
+        GeoMap = new OpenStreetMap({
+            cordova: true,
+            mapType: 'openstreetmap',
+            mapId: 'openstreetmap'
+        });
+
+        /* Initializes the map and the search box */
+        GeoMap.initMap();
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {

@@ -1,4 +1,4 @@
-var GeoMap;
+var GeoMap = {};
 
 function Map(options) {
     console.log('Map(options)');
@@ -12,7 +12,7 @@ function Map(options) {
     this.currentPosition = null;
     this.defaultZoom = 13; //15;
     this.defaultPosition = {
-	
+
         coords: {
             longitude: 25.6462243,
             latitude: 43.0907923
@@ -74,7 +74,7 @@ Map.prototype = {
     search: function(query) {
         console.log('Map.search(query)');
         console.log(query);
-        
+
         /* Perform the search if a query is specified */
         if (query === undefined || query === '') {
             alert("Please insert a address");

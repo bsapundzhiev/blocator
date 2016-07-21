@@ -20,6 +20,5 @@ var MapFactory = {
         }
 
         return new mapClass(options);
-
     }
 };

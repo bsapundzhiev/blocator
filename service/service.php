@@ -1,9 +1,9 @@
 
 <?php
-
+require_once('./PHP-Websockets/users.php');
 require_once('./PHP-Websockets/websockets.php');
 
-class echoServer extends WebSocketServer {
+class LocatorServer extends WebSocketServer {
   //protected $maxBufferSize = 1048576; //1MB... overkill for an echo server, but potentially plausible for other applications.
 
   protected function process ($user, $message) {
@@ -21,12 +21,19 @@ class echoServer extends WebSocketServer {
     // open files or other objects associated with them.  This runs after the socket
     // has been closed, so there is no need to clean up the socket itself here.
   }
+
+  protected function checkHost($hostName) {
+
+    //$this->stdout($hostName);
+    return true; // Override and return false if the host is not one that you would expect.
+                 // Ex: You only want to accept hosts from the my-domain.com domain,
+                 // but you receive a host from malicious-site.com instead.
+  }
 }
 
-$echo = new echoServer("0.0.0.0","9000");
+$echo = new LocatorServer("0.0.0.0","9000");
 
 try {
-  $echo->stdout("Run");
   $echo->run();
 }
 catch (Exception $e) {

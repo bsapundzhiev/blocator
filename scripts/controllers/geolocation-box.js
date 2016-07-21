@@ -1,6 +1,6 @@
 
 var GeolocationBox = {
-    /* 
+    /*
      * init
      * Initialize the object
      */
@@ -78,8 +78,16 @@ var GeolocationBox = {
      */
     updateLocators: function(data) {
         var template = _.template("<ul>" +
-            "<li><%= names.join('</li><li>') %></li>" +
+            "<li><a href='#'><%= names.join('</li><li>') %></a></li>" +
             "</ul>");
         this.locators.innerHTML = template({ names : data });
+
+        var lis = this.locators.getElementsByTagName('li');
+        for (var i=0; i<lis.length; i++) {
+            lis[i].addEventListener('click', function(e){
+                alert(e.target.childNodes[0].data);
+                e.preventDefault();
+            }, false);
+        }
     }
 };

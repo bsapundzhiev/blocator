@@ -1,14 +1,17 @@
 /**
  * Websocket client
+ * Author: Borislav Sapundzhiev (c) 2016
  */
 "use strict";
 var WSClient = {
 
     socket: null,
     host: null,
+    isConnected: false,
 
     onOpen: function() {
         console.log("onOpen");
+        this.isConnected = true;
     },
 
     onMessageReceived: function(evt) {
@@ -41,12 +44,13 @@ var WSClient = {
         this.socket.onclose = this.onClose;
     },
 
-    close: function(msg) {
+    close: function() {
         this.socket.close();
         this.socket = null;
+        this.isConnected = false;
     },
 
-    sendMessage: function() {
+    sendMessage: function(msg) {
         this.socket.send(msg);
     },
 
