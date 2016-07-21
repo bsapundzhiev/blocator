@@ -1,0 +1,27 @@
+{
+  "name": "geort",
+  "version": "1.0.0",
+  "description": "Geo realtime locator",
+  "main": "index.js",
+  "scripts": {
+    "test": "chromium-browser index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bsapundzhiev/geo.git"
+  },
+  "keywords": [
+    "geo",
+    "location",
+    "geolocation",
+    "geotaggin",
+    "realtime",
+    "location"
+  ],
+  "author": "Borislav Sapundzhiev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bsapundzhiev/geo/issues"
+  },
+  "homepage": "https://github.com/bsapundzhiev/geo#readme"
+}
