@@ -2,12 +2,24 @@
 <?php
 require_once('./PHP-Websockets/users.php');
 require_once('./PHP-Websockets/websockets.php');
+/*service*/
+require_once('./message.php');
+require_once('./messagepipe.php');
+require_once('./channel.php');
 
 class LocatorServer extends WebSocketServer {
-  //protected $maxBufferSize = 1048576; //1MB... overkill for an echo server, but potentially plausible for other applications.
+  //protected $maxBufferSize = (1024 * 1024); 
+  private $chan = null;
+
+  public function __construct($addr, $port)
+  {
+    parent::__construct($addr, $port);
+    $this->chan = new Channel($this);
+  }
 
   protected function process ($user, $message) {
-    $this->send($user, $message);
+    //$this->send($user, $message);
+    $this->chan->process($user, $message);
   }
 
   protected function connected ($user) {
@@ -29,6 +41,13 @@ class LocatorServer extends WebSocketServer {
                  // Ex: You only want to accept hosts from the my-domain.com domain,
                  // but you receive a host from malicious-site.com instead.
   }
+  //
+  //service delegates
+  //
+  public function sendMessage($user, $message) {
+    $this->send($user, $message);
+  }
+
 }
 
 $echo = new LocatorServer("0.0.0.0","9000");
