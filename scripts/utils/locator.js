@@ -3,6 +3,13 @@
  * Author: Borislav Sapundzhiev (c) 2016
  */
 "use strict";
+
+var MessageType = {
+    SERVICE: 1,
+    SERVICE_CMD: 2,
+    BROADCAST: 3
+}
+
 /**
  * Holds participant data
  * @param {String} name
@@ -82,16 +89,19 @@ var LocatorService = (function () {
     function start(serviceHost) {
 
         client = Object.create(WSClient);
+        client.name = "Default";
 
         client.onOpen = function() {
             WSClient.onOpen.call(this);
             console.log("Client connected!");
 
-            var ms = {
-                user:"Borislav",
-                message: "Hello world"
+            var pingMessage = {
+                type: MessageType.SERVICE_CMD,
+                user: client.name,
+                message: "PING"
             };
-            client.sendMessage(JSON.stringify(ms));
+
+            client.sendMessage(JSON.stringify(pingMessage));
         }
 
         client.onMessageReceived = function(evt) {

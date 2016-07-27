@@ -7,7 +7,11 @@ require_once('./message.php');
 require_once('./messagepipe.php');
 require_once('./channel.php');
 
-class LocatorServer extends WebSocketServer {
+interface ILocatorService {
+  public function sendMessage($user, $message);
+}
+
+class LocatorServer extends WebSocketServer implements ILocatorService {
   //protected $maxBufferSize = (1024 * 1024); 
   private $chan = null;
 
@@ -41,9 +45,7 @@ class LocatorServer extends WebSocketServer {
                  // Ex: You only want to accept hosts from the my-domain.com domain,
                  // but you receive a host from malicious-site.com instead.
   }
-  //
-  //service delegates
-  //
+  //ILocatorService
   public function sendMessage($user, $message) {
     $this->send($user, $message);
   }
