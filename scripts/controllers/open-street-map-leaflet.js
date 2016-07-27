@@ -34,8 +34,12 @@ OpenStreetMap.prototype = {
         });
 
         //this.map = L.map(this.mapId).setView(osmPosition, this.defaultPosition.coords.latitude);
+        var mapTiles = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        if(this.offline) {
+            mapTiles = 'apps/locator/www/img/mapTiles/{z}/{x}/{y}.png';
+        }
 
-        L.tileLayer( 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        L.tileLayer(mapTiles, {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             subdomains: ['a','b','c']
         }).addTo( this.map );

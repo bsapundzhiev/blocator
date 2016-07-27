@@ -42,6 +42,7 @@ var app = {
         });
 
         /* Initializes the map and the search box */
+        GeoMap.offline = true;
         GeoMap.initMap();
     },
     // Update DOM on a Received Event
