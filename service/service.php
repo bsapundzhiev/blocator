@@ -12,13 +12,13 @@ interface ILocatorService {
 }
 
 class LocatorServer extends WebSocketServer implements ILocatorService {
-  //protected $maxBufferSize = (1024 * 1024); 
+  //protected $maxBufferSize = (1024 * 1024);
   private $chan = null;
 
   public function __construct($addr, $port)
   {
     parent::__construct($addr, $port);
-    $this->chan = new Channel($this);
+    $this->chan = new ChannelProxy($this);
   }
 
   protected function process ($user, $message) {
@@ -27,15 +27,11 @@ class LocatorServer extends WebSocketServer implements ILocatorService {
   }
 
   protected function connected ($user) {
-    // Do nothing: This is just an echo server, there's no need to track the user.
-    // However, if we did care about the users, we would probably have a cookie to
-    // parse at this step, would be looking them up in permanent storage, etc.
+    $this->chan->add($user);
   }
 
   protected function closed ($user) {
-    // Do nothing: This is where cleanup would go, in case the user had any sort of
-    // open files or other objects associated with them.  This runs after the socket
-    // has been closed, so there is no need to clean up the socket itself here.
+    $this->chan->remove($user);
   }
 
   protected function checkHost($hostName) {

@@ -3,30 +3,29 @@
 /**
 * Message pipe
 */
-class MessagePipeLine 
+class MessagePipeLine
 {
-    private $service; 
+    private $channel = null;
     private $qmsg = array();
     private $arrayUsers = array();
 
-    function __construct($service) { 
-        /*ILocatorService*/
-        $this->service = $service;
+    function __construct(&$channel) {
+
+        $this->channel = $channel;
     }
 
     private function decode($jsonStrMsg) {
-
         return json_decode($jsonStrMsg, true);
     }
- 
-    private function encode($arrMsg) {
 
+    private function encode($arrMsg) {
         return json_encode($arrMsg);
     }
-	
+
     function add($client, $jsonStrMsg) {
 
         $message = $this->decode($jsonStrMsg);
+
         if($message) {
             array_push($this->qmsg, new Message($client, $message));
         } else {
@@ -38,12 +37,8 @@ class MessagePipeLine
 
         $message = end($this->qmsg);
         //TODO: track users
-        if($message->getType() > MessageType::SERVICE_CMD) {
-            array_push($this->arrayUsers, $message->getUser());     
-        }
-
         if($message->getType() == MessageType::SERVICE) {
-            $this->sendMessage($message);              
+            $this->sendMessage($message);
         } else if($message->getType() == MessageType::SERVICE_CMD) {
             //TODO: commands
             $this->ping($message);
@@ -57,7 +52,7 @@ class MessagePipeLine
 
         $this->remove($message);
 
-        echo "q: ".count($this->qmsg)."\n";
+        echo "qmsg: ".count($this->qmsg)."\n";
     }
 
     private function remove($message) {
@@ -65,28 +60,26 @@ class MessagePipeLine
         if (($key = array_search($message, $this->qmsg)) !== false) {
             unset($this->qmsg[$key]);
         }
-
     }
 
     private function broadCast($message) {
-
-        foreach ($this->qmsg as $msg) {
-            $this->sendMessage($message, $msg->getClient());
-        }
+        $encoded = $this->encode($message->getData());
+        $this->channel->broadCastMessage($encoded);
     }
 
-    private function sendMessage($message, $client = NULL) {
+    private function sendMessage($message) {
         $jsonString = $this->encode($message->getData());
-        $this->service->sendMessage($client ? $client : $message->getClient(), $jsonString);  
+        $this->channel->sendMessage($message->getClient(), $jsonString);
     }
 
-    //cmd 
+    //cmd
     private function ping($message) {
         $data = $message->getData();
         $data['message'] = "PONG";
         $data['users'] = $this->arrayUsers;
-        $serviceMessage = new Message(null, $data);
-        $this->sendMessage($serviceMessage,$message->getClient());
+        $serviceMessage = new Message($message->getClient(), $data);
+        $this->sendMessage($serviceMessage);
     }
 }
+
 ?>

@@ -12,7 +12,7 @@ var App = {
         GeolocationBox.init();
         SearchBox.init();
         MapSwitcher.init();
-        LocatorService.start("ws://127.0.0.1:9000/");
+        LocatorService.start("ws://127.0.0.1:9000/service");
 
         /* Add default contacts */
         // JSUtil.getBlobFromImagePath("img/end3r.jpeg", function(blob) {
