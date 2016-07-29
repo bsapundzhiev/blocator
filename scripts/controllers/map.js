@@ -10,7 +10,7 @@ function Map(options) {
     this.searchInput = null;
     this.searchButton = null;
     this.currentPosition = null;
-    this.defaultZoom = 13; //15;
+    this.defaultZoom = options.defaultZoom || 13;
     this.defaultPosition = {
 
         coords: {

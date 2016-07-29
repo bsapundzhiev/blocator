@@ -27,58 +27,56 @@ var LocationClient = {
     opt: null,
     watchGeo: null,
     client: null,
-    init: function() {
+    init: function(host) {
 
         this.client = Object.create(WSClient);
         this.client.name = "Borislav";
 
         this.client.onOpen = this.onConnected.bind(this);
+        this.client.onMessageReceived = this.onMessageReceived;
+        this.client.onError = this.onError;
 
-        this.client.onMessageReceived = function(evt) {
-            console.log("recv: " + evt.data);
-            var msg = null;
-            try{
-              msg = JSON.parse(evt.data);
+        navigator.geolocation.getCurrentPosition(function(position) {
+
+            GeoMap.showLocatorPosition("Test", position);
+        }, function(error) {
+            console.log(error);
+            alert('code: '    + error.code    + '\n' +
+                'message: ' + error.message + '\n');
+
+        }, {maximumAge: 0, timeout: 10000, enableHighAccuracy: true});
+
+        this.startWatch(function(position) {
+           GeoMap.showLocatorPosition("Test", position);
+            console.log("position: ", position);
+            if(this.client.isConnected) {
+                this.sendMessage(MessageType.SERVICE, position);
             }
-            catch(ex) {
-                console.log("message parse error: ", ex.message);
-            }
-        };
-
-        this.client.onError = function(error) {
-            alert(error);
-        }
-
-        this.client.init("ws://100.102.0.224:9000/client");
+        }, function(error) {
+             console.log(error);
+            //PositionError.TIMEOUT
+            alert('code: '    + error.code    + '\n' +
+                'message: ' + error.message + '\n');
+        });
+        //connect to server
+        this.client.init(host);
     },
 
     startWatch: function(success, fail) {
-        console.log("startGeoWatch()");
-        this.opt = { maximumAge: 3000, timeout: 5000, enableHighAccuracy: false };
+        console.log("startWatch()");
+        this.opt = { maximumAge: 0, timeout: 10000, enableHighAccuracy: true };
         this.watchGeo = navigator.geolocation.watchPosition(success, fail, this.opt);
     },
 
     stopWatch: function() {
-        console.log("stopGeoWatch()");
+        console.log("stopWatch()");
         navigator.geolocation.clearWatch(this.watchGeo);
     },
 
     onConnected: function() {
         WSClient.onOpen.call(this);
         console.log("Client connected!");
-
         this.sendMessage(MessageType.SERVICE, "HELLO");
-        this.startWatch(function(position) {
-            GeoMap.showPosition(position);
-            //position.coords.latitude
-            //position.coords.longitude
-            console.log("position: ", position);
-            this.sendMessage(MessageType.SERVICE, position);
-        }, function(error) {
-            //PositionError.TIMEOUT
-            alert('code: '    + error.code    + '\n' +
-                'message: ' + error.message + '\n');
-        });
     },
 
     sendMessage: function(type, msg) {
@@ -88,6 +86,21 @@ var LocationClient = {
             message: msg
         };
         this.client.sendMessage(JSON.stringify(pingMessage));
+    },
+
+    onMessageReceived: function(evt) {
+        console.log("recv: " + evt.data);
+        var msg = null;
+        try {
+            msg = JSON.parse(evt.data);
+        }
+        catch(ex) {
+            console.log("message parse error: ", ex.message);
+        }
+    },
+
+    onError: function(error) {
+        alert(error);
     }
 };
 
@@ -108,30 +121,30 @@ var app = {
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
-        //app.receivedEvent('deviceready');
+        app.receivedEvent('deviceready');
+    },
+    // Update DOM on a Received Event
+    receivedEvent: function(id) {
+        //var parentElement = document.getElementById(id);
+        //var listeningElement = parentElement.querySelector('.listening');
+        //var receivedElement = parentElement.querySelector('.received');
+
+        //listeningElement.setAttribute('style', 'display:none;');
+        //receivedElement.setAttribute('style', 'display:block;');
+
+        console.log('Received Event: ' + id);
         // init map
         GeoMap = new OpenStreetMap({
             cordova: true,
             mapType: 'openstreetmap',
-            mapId: 'openstreetmap'
+            mapId: 'openstreetmap',
+            defaultZoom: 12
         });
 
         /* Initializes the map and the search box */
-        //GeoMap.offline = true;
+        GeoMap.mapTiles = 'img/mapTiles/{z}/{x}/{y}.png';
         GeoMap.initMap();
-        LocationClient.init();
-
-    },
-    // Update DOM on a Received Event
-    receivedEvent: function(id) {
-        var parentElement = document.getElementById(id);
-        var listeningElement = parentElement.querySelector('.listening');
-        var receivedElement = parentElement.querySelector('.received');
-
-        listeningElement.setAttribute('style', 'display:none;');
-        receivedElement.setAttribute('style', 'display:block;');
-
-        console.log('Received Event: ' + id);
+        LocationClient.init("ws://100.102.0.224:9000/client");
     }
 };
 

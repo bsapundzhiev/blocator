@@ -28,9 +28,7 @@ var WSClient = {
 
     init: function(host, features) {
         try {
-            if(this.socket) {
-                this.close();
-            }
+            this.close();
             this.socket = new WebSocket(host, features);
         } catch(ex) {
             alert(ex.message);
@@ -45,7 +43,9 @@ var WSClient = {
     },
 
     close: function() {
-        this.socket.close();
+        if(this.socket) {
+            this.socket.close();
+        }
         this.socket = null;
         this.isConnected = false;
     },
