@@ -18,24 +18,21 @@ var LocationClient = {
         this.client.onOpen = this.onConnected.bind(this);
         this.client.onMessageReceived = this.onMessageReceived;
         this.client.onError = this.onError;
-
-        /*navigator.geolocation.getCurrentPosition(function(position) {
-            GeoMap.showLocatorPosition("Test", position);
-        }, function(error) {
-            console.log(error);
-            alert('code: '    + error.code    + '\n' +
-                'message: ' + error.message + '\n');
-        }, {maximumAge: 0, timeout: 10000, enableHighAccuracy: true});*/
+        // geolocation opt
+        this.opt = { timeout: this.timeOut, enableHighAccuracy: true };
 
         this.startWatch(function(position) {
-            alert("position: ", JSON.stringify(position));
+            alert("position");
             GeoMap.showLocatorPosition("Test", position);
             if(this.client.isConnected) {
                 this.sendMessage(MessageType.SERVICE, position);
             }
         }, function(error) {
             console.log(error);
-            //PositionError.TIMEOUT
+            if (error.code === error.TIMEOUT) {
+                console.log("location timeout");
+                return;
+            }
             alert('code: '    + error.code    + '\n' +
                 'message: ' + error.message + '\n');
         });
@@ -45,16 +42,23 @@ var LocationClient = {
 
     startWatch: function(success, fail) {
         console.log("startWatch()");
-        this.opt = { timeout: this.timeOut, enableHighAccuracy: true };
+        
         if(this.watchGeo) {
             this.stopWatch();
         }
-        this.watchGeo = navigator.geolocation.watchPosition(success, fail, this.opt);
+        //this.watchGeo = navigator.geolocation.watchPosition(success, fail, this.opt);
+        var geoOpt = this.opt;
+        this.watchGeo = setInterval(function() {
+            navigator.geolocation.getCurrentPosition(success, fail, geoOpt);
+        }, this.timeOut * 2);
+
     },
 
     stopWatch: function() {
         console.log("stopWatch()");
-        navigator.geolocation.clearWatch(this.watchGeo);
+        //navigator.geolocation.clearWatch(this.watchGeo);
+        clearInterval(this.watchGeo);
+        this.watchGeo = null;
     },
 
     onConnected: function() {
