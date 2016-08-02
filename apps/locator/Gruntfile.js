@@ -13,7 +13,7 @@ module.exports = function(grunt) {
                 files: [{
                     expand: true,
                     cwd: '../../',
-                    src: ['libs/*/*'],
+                    src: ['libs/**/*'],
                     dest: 'www/'
                 }]
             }

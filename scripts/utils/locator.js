@@ -109,6 +109,16 @@ var LocatorService = (function () {
             var msg = null;
             try{
               msg = JSON.parse(evt.data);
+              if(msg.type === MessageType.SERVICE) {
+
+                addParticipant(msg.user);
+                setLocationPoints(msg.user, msg.message);
+                
+                GeoMap.showLocatorPosition(msg.user, LocatorService.getLocationPoints(msg.user));
+
+                GeolocationBox.updateLocators(listParticipants());
+              }
+
             }
             catch(ex) {
                 console.log("message parse error: ", ex.message);
@@ -117,14 +127,14 @@ var LocatorService = (function () {
 
         client.init(serviceHost);
 
-        addParticipant("Borislav");
-        setLocationPoints("Borislav", { coords:{longitude: 25.5996566, latitude: 43.1786099} });
+        //addParticipant("Borislav");
+        //setLocationPoints("Borislav", { coords:{longitude: 25.5996566, latitude: 43.1786099} });
 
         //GeoMap.showPosition(LocatorBoard.getLocationPoints("Borislav"));
 
-        GeoMap.showLocatorPosition("Borislav", LocatorService.getLocationPoints("Borislav"));
+        //GeoMap.showLocatorPosition("Borislav", LocatorService.getLocationPoints("Borislav"));
 
-        GeolocationBox.updateLocators(listParticipants());
+        //GeolocationBox.updateLocators(listParticipants());
     }
 
 
