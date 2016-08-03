@@ -4,12 +4,6 @@
  */
 "use strict";
 
-var MessageType = {
-    SERVICE: 1,
-    SERVICE_CMD: 2,
-    BROADCAST: 3
-}
-
 /**
  * Holds participant data
  * @param {String} name
@@ -39,41 +33,41 @@ function Participant (name) {
  */
 var LocatorService = (function () {
 
-	var participants = {};
+    var participants = {};
     var client = null;
-	/**
-	 * Adds pariticipant to the locatorboard
-	 * @param {String} name
-	 */
-	function addParticipant (name) {
-		participants[name] = new Participant(name);
-	}
+    /**
+     * Adds pariticipant to the locatorboard
+     * @param {String} name
+     */
+    function addParticipant (name) {
+        participants[name] = new Participant(name);
+    }
 
-	/**
-	 * Increment participant points
-	 * @param  {String} participantName
-	 * @param  {Number} points
-	 * @return {Void}
-	 */
-	function setLocationPoints (participantName, points) {
+    /**
+     * Increment participant points
+     * @param  {String} participantName
+     * @param  {Number} points
+     * @return {Void}
+     */
+    function setLocationPoints (participantName, points) {
 
-		participants[participantName].setLocation(points);
+        participants[participantName].setLocation(points);
 
-	}
+    }
 
-	function getLocationPoints(participantName) {
-		return participants[participantName].getLocation();
-	}
+    function getLocationPoints(participantName) {
+        return participants[participantName].getLocation();
+    }
 
-	function listParticipants() {
-		var result =[];
-		for(var name in participants){
-			console.log(participants[name].name + " longitude: " + participants[name].location.coords.longitude + " latitude: " + participants[name].location.coords.latitude);
-			result.push(name);
-		}
+    function listParticipants() {
+        var result =[];
+        for(var name in participants){
+            console.log(participants[name].name + " longitude: " + participants[name].location.coords.longitude + " latitude: " + participants[name].location.coords.latitude);
+            result.push(name);
+        }
 
-		return result;
-	}
+        return result;
+    }
 
     /*
      * getCurrentPosition
@@ -89,32 +83,32 @@ var LocatorService = (function () {
     function start(serviceHost) {
 
         client = Object.create(WSClient);
-        client.name = "Default";
-
+        client.name = _.uniqueId("Default");
+        client.onError = function(evt) {
+            console.log("client error", evt);
+            alert("Location service Error:" + evt.target.readyState);
+        };
         client.onOpen = function() {
             WSClient.onOpen.call(this);
-            console.log("Client connected!");
-
-            var pingMessage = {
-                type: MessageType.SERVICE_CMD,
-                user: client.name,
-                message: "PING"
-            };
-
-            client.sendMessage(JSON.stringify(pingMessage));
-        }
+            console.log("Client connected!", this.isConnected);
+            var message = Object.create(Message);
+            message.setData(client, MessageType.SERVICE_CMD, "PING");
+            client.sendMessage(message.getData());
+        };
 
         client.onMessageReceived = function(evt) {
             console.log("recv: " + evt.data);
             var msg = null;
             try{
-              msg = JSON.parse(evt.data);
-              if(msg.type === MessageType.SERVICE) {
+                var message = Object.create(Message);
+                message.parse(evt.data);
 
-                addParticipant(msg.user);
-                setLocationPoints(msg.user, msg.message);
-                
-                GeoMap.showLocatorPosition(msg.user, LocatorService.getLocationPoints(msg.user));
+              if(message.getType() === MessageType.SERVICE) {
+                var user = message.getUser();
+                addParticipant(user);
+                setLocationPoints(user, message.data.message);
+
+                GeoMap.showLocatorPosition(user, LocatorService.getLocationPoints(user));
 
                 GeolocationBox.updateLocators(listParticipants());
               }
@@ -123,7 +117,7 @@ var LocatorService = (function () {
             catch(ex) {
                 console.log("message parse error: ", ex.message);
             }
-        }
+        };
 
         client.init(serviceHost);
 
@@ -138,14 +132,13 @@ var LocatorService = (function () {
     }
 
 
-	var publicApi = {
+    var publicApi = {
         start: start,
-		addParticipant: addParticipant,
-		setLocationPoints: setLocationPoints,
-		getLocationPoints: getLocationPoints,
-		listParticipants: listParticipants,
-		getCurrentPosition:getCurrentPosition
-	};
 
-	return publicApi;
+        getLocationPoints: getLocationPoints,
+        listParticipants: listParticipants,
+        getCurrentPosition:getCurrentPosition
+    };
+
+    return publicApi;
 })();

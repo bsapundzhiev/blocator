@@ -1,8 +1,6 @@
-var MessageType = {
-    SERVICE: 1,
-    SERVICE_CMD: 2,
-    BROADCAST: 3
-};
+/**
+ * Locator service client
+ */
 
 var LocationClient = {
     opt: null,
@@ -14,6 +12,7 @@ var LocationClient = {
 
         this.client = Object.create(WSClient);
         this.client.name = "Borislav";
+        this.client.id = _.uniqueId("uid_");
 
         this.client.onOpen = this.onConnected.bind(this);
         this.client.onMessageReceived = this.onMessageReceived;
@@ -29,12 +28,11 @@ var LocationClient = {
 
     startWatch: function(success, fail) {
         console.log("startWatch()");
-        
+
         if(this.watchGeo) {
             this.stopWatch();
         }
         this.watchGeo = navigator.geolocation.watchPosition(success, fail, this.opt);
-
     },
 
     stopWatch: function() {
@@ -47,7 +45,7 @@ var LocationClient = {
         GeoMap.showLocatorPosition(this.client.name, position);
         //send location to service
         var location = {
-            coords: { 
+            coords: {
                 latitude:position.coords.latitude,
                 longitude: position.coords.longitude
             }
@@ -61,20 +59,11 @@ var LocationClient = {
         this.sendMessage(MessageType.BROADCAST, "HELLO");
     },
 
-    sendMessage: function(type, msg) {
-        console.log(msg);
-
-        var pingMessage = {
-            type: MessageType.SERVICE,
-            user: this.client.name,
-            message: msg,
-            date: Date.now()
-        };
-
-        console.log("client.isConnected: ", this.client.isConnected);
-
-        this.client.sendMessage(JSON.stringify(pingMessage));
-    
+    sendMessage: function(type, data) {
+        var message = Object.create(Message);
+        message.setData(this.client, type, data);
+        console.log(message.getData());
+        this.client.sendMessage(message.getData());
     },
 
     onMessageReceived: function(evt) {
@@ -82,6 +71,7 @@ var LocationClient = {
         var msg = null;
         try {
             msg = JSON.parse(evt.data);
+            alert(msg);
         }
         catch(ex) {
             console.log("message parse error: ", ex.message);
@@ -93,8 +83,8 @@ var LocationClient = {
         if(error.target) {
             alert("Cleint error: " + JSON.stringify(error.target.readyState));
         } else {
-            alert("Cleint error: " + JSON.stringify(error));    
+            alert("Cleint error: " + JSON.stringify(error));
         }
-        
+
     }
 };
