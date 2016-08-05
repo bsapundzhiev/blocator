@@ -53,10 +53,15 @@ var app = {
         });
         GeoMap.cordova = true;
         /* Initializes the map and the search box */
-        GeoMap.mapTiles = 'img/mapTiles/{z}/{x}/{y}.png';
+        //GeoMap.mapTiles = 'img/mapTiles/{z}/{x}/{y}.png';
         GeoMap.initMap();
-        LocationClient.init("ws://100.102.0.224:9000/client");
+        //LocationClient.init("ws://100.102.0.224:9000/client");
         //LocationClient.init("ws://192.168.0.145:9000/client");
+        LocationClient.init("ws://calipso.no-ip.info:9000/client");
+
+        $("li.dropdown").click(function() {
+          $("nav.navbar").toggleClass("open");
+        });
     }
 };
 

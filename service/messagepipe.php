@@ -29,7 +29,7 @@ class MessagePipeLine
         if($message) {
             array_push($this->qmsg, new Message($client, $message));
         } else {
-            throw new Exception("Unknown message received", 1);
+            throw new Exception("Unknown message received");
         }
     }
 
@@ -52,7 +52,7 @@ class MessagePipeLine
 
         $this->remove($message);
 
-        echo "qmsg: ".count($this->qmsg)."\n";
+        //echo "qmsg: ".count($this->qmsg)."\n";
     }
 
     private function remove($message) {
