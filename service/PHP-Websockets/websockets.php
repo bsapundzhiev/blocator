@@ -15,6 +15,7 @@ abstract class WebSocketServer {
   protected $headerOriginRequired                 = false;
   protected $headerSecWebSocketProtocolRequired   = false;
   protected $headerSecWebSocketExtensionsRequired = false;
+  protected $logFile                              = "";
 
   function __construct($addr, $port, $bufferLength = 2048) {
     $this->maxBufferSize = $bufferLength;
@@ -86,7 +87,15 @@ abstract class WebSocketServer {
       $write = $except = null;
       $this->_tick();
       $this->tick();
-      @socket_select($read,$write,$except,1);
+      if(socket_select($read,$write,$except,1) < 1) {
+        $error = socket_last_error();
+        if($error != 0) {
+            $this->stderr("socket_select() failed, reason:" . socket_strerror($error));
+        }
+
+        continue;
+      }
+
       foreach ($read as $socket) {
         if ($socket == $this->master) {
           $client = socket_accept($socket);
@@ -302,9 +311,10 @@ abstract class WebSocketServer {
   }
 
   public function stderr($message) {
-    if ($this->interactive) {
+    /*if ($this->interactive) {
       echo "$message\n";
-    }
+    }*/
+    $this->log($message);
   }
 
   protected function frame($message, $user, $messageType='text', $messageContinues=false) {
@@ -604,5 +614,20 @@ abstract class WebSocketServer {
 
     }
     echo ")\n";
+  }
+
+
+  public function log($msg) {
+
+    if (empty($this->logFile)) {
+        return;
+    }
+
+    $fd = @fopen($this->logFile, "a");
+    if ($fd) {
+      $str = "[" . date("Y/m/d h:i:s", time()) . "] " . $msg;
+      fwrite($fd, $str . "\n");
+      fclose($fd);
+    }
   }
 }

@@ -12,9 +12,9 @@ interface ILocatorService {
 }
 
 class LocatorServer extends WebSocketServer implements ILocatorService {
-  //protected $maxBufferSize = (1024 * 1024);
-  private $chan = null;
-  private $filename ="log.txt";
+  protected $maxBufferSize = 4096;
+  protected $logFile       = "log.txt";
+  private   $chan          = null;
 
   public function __construct($addr, $port)
   {
@@ -47,17 +47,6 @@ class LocatorServer extends WebSocketServer implements ILocatorService {
     $this->send($user, $message);
   }
 
-  //uitl
-  public function log($msg) {
-
-    $fd = @fopen($this->filename, "a");
-    if($fd) {
-      $str = "[" . date("Y/m/d h:i:s", time()) . "] " . $msg;
-      fwrite($fd, $str . "\n");
-      fclose($fd);
-    }
-  }
-
 }
 
 class Program {
@@ -65,7 +54,7 @@ class Program {
     public static function main($args) {
         try {
           self::$service = new LocatorServer("0.0.0.0", "9000");
-          self::$service->log("Sever started");
+          //self::$service->log("Sever started");
           /*$fd = @fopen("pidfile.pid", "w");
           if($fd) {
             fwrite($fd, getmypid());
