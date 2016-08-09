@@ -6,39 +6,34 @@ var LocationClient = {
     opt: null,
     watchGeo: null,
     client: null,
-    timeOut: 30000,
 
-    init: function(host) {
+    startWatch: function(settings) {
+        console.log("startWatch()");
+        if(this.watchGeo) {
+            this.stopWatch();
+        }
 
         this.client = Object.create(WSClient);
-        this.client.name = "Borislav";
+        this.client.name = settings.user.userName;
         this.client.id = _.uniqueId("uid_");
 
         this.client.onOpen = this.onConnected.bind(this);
         this.client.onMessageReceived = this.onMessageReceived;
         this.client.onError = this.onError;
+        this.client.onClose = this.onClose;
         // geolocation opt
-        this.opt = { timeout: this.timeOut, enableHighAccuracy: true };
-
         var locationCb = this.onLocation.bind(this);
-        this.startWatch(locationCb, this.onError);
         //connect to server
-        this.client.init(host);
-    },
-
-    startWatch: function(success, fail) {
-        console.log("startWatch()");
-
-        if(this.watchGeo) {
-            this.stopWatch();
-        }
-        this.watchGeo = navigator.geolocation.watchPosition(success, fail, this.opt);
+        this.client.init(settings.user.service);
+        this.watchGeo = navigator.geolocation.watchPosition(locationCb, this.onError, settings.gps);
     },
 
     stopWatch: function() {
         console.log("stopWatch()");
         navigator.geolocation.clearWatch(this.watchGeo);
         this.watchGeo = null;
+        this.client.close();
+        delete this.client;
     },
 
     onLocation: function(position) {
@@ -72,8 +67,7 @@ var LocationClient = {
         try {
             msg = JSON.parse(evt.data);
             alert(msg);
-        }
-        catch(ex) {
+        } catch(ex) {
             console.log("message parse error: ", ex.message);
         }
     },
@@ -86,5 +80,9 @@ var LocationClient = {
             alert("Cleint error: " + JSON.stringify(error));
         }
 
+    },
+    onClose: function(evt) {
+        console.log("onClose", evt);
+        alert("Server close the connection");
     }
 };

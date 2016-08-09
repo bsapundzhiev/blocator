@@ -16,7 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+var ViewModel = {
+
+    settings: null,
+
+    init: function() {
+        this.settings = Object.create(SettingsModel);
+        this.settings.init();
+    },
+
+    onSwitchCommand: function(onoff) {
+        //Location service command
+        if(onoff) {
+            LocationClient.startWatch(this.settings);
+        } else {
+            LocationClient.stopWatch();
+        }
+    }
+};
+
 var app = {
+    menuView: null,
     // Application Constructor
     initialize: function() {
         this.bindEvents();
@@ -55,13 +75,11 @@ var app = {
         /* Initializes the map and the search box */
         //GeoMap.mapTiles = 'img/mapTiles/{z}/{x}/{y}.png';
         GeoMap.initMap();
-        //LocationClient.init("ws://100.102.0.224:9000/client");
-        //LocationClient.init("ws://192.168.0.145:9000/client");
-        LocationClient.init("ws://calipso.no-ip.info:9000/client");
+        ViewModel.init();
 
-        $("li.dropdown").click(function() {
-          $("nav.navbar").toggleClass("open");
-        });
+        menuView = Object.create(MenuView);
+        menuView.init();
+        menuView.viewModel = ViewModel;
     }
 };
 
