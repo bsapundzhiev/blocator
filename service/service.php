@@ -7,18 +7,21 @@ require_once('./message.php');
 require_once('./messagepipe.php');
 require_once('./channel.php');
 
+define('MAX_BUFFER', 2048);
+
 interface ILocatorService {
   public function sendMessage($user, $message);
 }
 
 class LocatorServer extends WebSocketServer implements ILocatorService {
-  protected $maxBufferSize = 4096;
+
   protected $logFile       = "log.txt";
   private   $chan          = null;
 
-  public function __construct($addr, $port)
+  public function __construct($addr, $port, $maxBuf)
   {
-    parent::__construct($addr, $port);
+    parent::__construct($addr, $port, $maxBuf);
+    $this->maxBufferSize = 4096;
     $this->chan = new ChannelProxy($this);
   }
 
@@ -52,8 +55,11 @@ class LocatorServer extends WebSocketServer implements ILocatorService {
 class Program {
     private static $service = null;
     public static function main($args) {
+        if (php_sapi_name() != "cli") {
+          die("Use cli");
+        }
         try {
-          self::$service = new LocatorServer("0.0.0.0", "9000");
+          self::$service = new LocatorServer("0.0.0.0", "9000", MAX_BUFFER);
           //self::$service->log("Sever started");
           /*$fd = @fopen("pidfile.pid", "w");
           if($fd) {

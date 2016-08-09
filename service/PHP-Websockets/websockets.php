@@ -3,6 +3,19 @@
 //require_once('./daemonize.php');
 //require_once('./users.php');
 
+define('EAGAIN' , 11); // EAGAIN or EWOULDBLOCK
+define('ENETRESET', 102); // ENETRESET    -- Network dropped connection because of reset
+define('ECONNABORTED', 102); // ECONNABORTED -- Software caused connection abort
+define('ECONNRESET', 104); // ECONNRESET   -- Connection reset by peer
+define('ESHUTDOWN', 108); // ESHUTDOWN    -- Cannot send after transport endpoint shutdown -- probably more of an error on our part, if we're trying to write after the socket is closed.  Probably not a critical error, though.
+define('ETIMEDOUT', 110); // ETIMEDOUT   -- Connection timed out
+define('ECONNREFUSED', 111); // ECONNREFUSED -- Connection refused -- We shouldn't see this one, since we're listening... Still not a critical error.
+define('EHOSTDOWN', 112) ; //EHOSTDOWN   -- Again, we shouldn't see this, and again, not critical because it's just one connection and we still want to listen to/for others.
+define('EHOSTUNREACH', 113); // EHOSTUNREACH -- No route to host
+define('EINPROGRESS',115);
+define('EREMOTEIO', 121); // EREMOTEIO    -- Rempte I/O error -- Their hard drive just blew up.
+define('ECANCELED', 125); // ECANCELED    -- Operation canceled
+
 abstract class WebSocketServer {
 
   protected $userClass = 'WebSocketUser'; // redefine this if you want a custom user class.  The custom user class should inherit from WebSocketUser.
@@ -21,12 +34,12 @@ abstract class WebSocketServer {
     $this->maxBufferSize = $bufferLength;
     $this->master = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)  or die("Failed: socket_create()");
     socket_set_option($this->master, SOL_SOCKET, SO_REUSEADDR, 1) or die("Failed: socket_option()");
+    socket_set_nonblock($this->master)                            or die("Failed: socket_set_nonblock()");
     socket_bind($this->master, $addr, $port)                      or die("Failed: socket_bind()");
     socket_listen($this->master,20)                               or die("Failed: socket_listen()");
     $this->sockets['m'] = $this->master;
-    $this->stdout("Server started\nListening on: $addr:$port\nMaster socket: ".$this->master);
-
-
+    $this->stdout(get_class($this)." on: $addr:$port");
+    $this->stdout("Master socket: ".$this->master. ", rbuffer: ". $this->maxBufferSize);
   }
 
   abstract protected function process($user,$message); // Called immediately when the data is recieved.
@@ -87,10 +100,10 @@ abstract class WebSocketServer {
       $write = $except = null;
       $this->_tick();
       $this->tick();
-      if(socket_select($read,$write,$except,1) < 1) {
-        $error = socket_last_error();
-        if($error != 0) {
-            $this->stderr("socket_select() failed, reason:" . socket_strerror($error));
+      if(socket_select($read,$write,$except,1) === false) {
+        $errorcode = socket_last_error();
+        if($errorcode != ESUCCESS) {
+            $this->stderr("socket_select() failed, reason: [$errorcode] " . socket_strerror($errorcode));
         }
 
         continue;
@@ -112,7 +125,14 @@ abstract class WebSocketServer {
           $numBytes = @socket_recv($socket, $buffer, $this->maxBufferSize, 0);
           if ($numBytes === false) {
             $sockErrNo = socket_last_error($socket);
-            switch ($sockErrNo)
+
+            if($socketErrNo == EAGAIN || $socketErrNo == EINPROGRESS) {
+                continue;
+            } else {
+                $this->stderr("Unusual disconnect on socket " . $socket . " error: ". socket_strerror($sockErrNo));
+                $this->disconnect($socket, true, $sockErrNo); // disconnect before clearing error, in case someone with their own implementation wants to check for error conditions on the socket.
+            }
+            /*switch ($sockErrNo)
             {
               case 102: // ENETRESET    -- Network dropped connection because of reset
               case 103: // ECONNABORTED -- Software caused connection abort
@@ -131,7 +151,7 @@ abstract class WebSocketServer {
               default:
 
                 $this->stderr('Socket error: ' . socket_strerror($sockErrNo));
-            }
+            }*/
 
           }
           elseif ($numBytes == 0) {
