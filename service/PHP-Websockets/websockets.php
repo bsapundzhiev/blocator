@@ -100,7 +100,7 @@ abstract class WebSocketServer {
       $write = $except = null;
       $this->_tick();
       $this->tick();
-      if(socket_select($read,$write,$except,1) === false) {
+      if(socket_select($read,$write,$except, 1) === false) {
         $errorcode = socket_last_error();
         if($errorcode != ESUCCESS) {
             $this->stderr("socket_select() failed, reason: [$errorcode] " . socket_strerror($errorcode));
@@ -126,13 +126,14 @@ abstract class WebSocketServer {
           if ($numBytes === false) {
             $sockErrNo = socket_last_error($socket);
 
-            if($socketErrNo == EAGAIN || $socketErrNo == EINPROGRESS) {
+           /* if($socketErrNo == EAGAIN || $socketErrNo == EINPROGRESS) {
                 continue;
             } else {
-                $this->stderr("Unusual disconnect on socket " . $socket . " error: ". socket_strerror($sockErrNo));
+                $this->stderr("Unusual disconnect $sockErrNo on socket $socket : ". socket_strerror($sockErrNo));
                 $this->disconnect($socket, true, $sockErrNo); // disconnect before clearing error, in case someone with their own implementation wants to check for error conditions on the socket.
-            }
-            /*switch ($sockErrNo)
+            }*/
+
+            switch ($sockErrNo)
             {
               case 102: // ENETRESET    -- Network dropped connection because of reset
               case 103: // ECONNABORTED -- Software caused connection abort
@@ -145,18 +146,19 @@ abstract class WebSocketServer {
               case 121: // EREMOTEIO    -- Rempte I/O error -- Their hard drive just blew up.
               case 125: // ECANCELED    -- Operation canceled
 
-                $this->stderr("Unusual disconnect on socket " . $socket);
+                $this->stderr("Unusual disconnect on socket  " . $sockEeeNo);
                 $this->disconnect($socket, true, $sockErrNo); // disconnect before clearing error, in case someone with their own implementation wants to check for error conditions on the socket.
                 break;
               default:
 
                 $this->stderr('Socket error: ' . socket_strerror($sockErrNo));
-            }*/
+            }
 
           }
           elseif ($numBytes == 0) {
+            $sockErrNo = socket_last_error($socket);
             $this->disconnect($socket);
-            $this->stderr("Client disconnected. TCP connection lost: " . $socket);
+            $this->stderr("Client disconnected. TCP connection lost $socket: " . socket_strerror($sockErrNo));
           }
           else {
             $user = $this->getUserBySocket($socket);
