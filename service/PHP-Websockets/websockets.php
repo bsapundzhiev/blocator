@@ -1,8 +1,5 @@
 <?php
 
-//require_once('./daemonize.php');
-//require_once('./users.php');
-
 define('EAGAIN' , 11); // EAGAIN or EWOULDBLOCK
 define('ENETRESET', 102); // ENETRESET    -- Network dropped connection because of reset
 define('ECONNABORTED', 102); // ECONNABORTED -- Software caused connection abort
@@ -34,6 +31,7 @@ abstract class WebSocketServer {
     $this->maxBufferSize = $bufferLength;
     $this->master = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)  or die("Failed: socket_create()");
     socket_set_option($this->master, SOL_SOCKET, SO_REUSEADDR, 1) or die("Failed: socket_option()");
+    socket_set_option($this->master, SOL_SOCKET, SO_KEEPALIVE, 1);
     socket_set_nonblock($this->master)                            or die("Failed: socket_set_nonblock()");
     socket_bind($this->master, $addr, $port)                      or die("Failed: socket_bind()");
     socket_listen($this->master,20)                               or die("Failed: socket_listen()");
@@ -54,7 +52,7 @@ abstract class WebSocketServer {
   protected function send($user, $message) {
     if ($user->handshake) {
       $message = $this->frame($message,$user);
-      $result = @socket_write($user->socket, $message, strlen($message));
+      $this->write($user->socket, $message, strlen($message));
     }
     else {
       // User has not yet performed their handshake.  Store for sending later.
@@ -97,15 +95,14 @@ abstract class WebSocketServer {
         $this->sockets['m'] = $this->master;
       }
       $read = $this->sockets;
-      $write = $except = null;
+      $write = $except = NULL;
       $this->_tick();
       $this->tick();
-      if(socket_select($read,$write,$except, 1) === false) {
+      if(socket_select($read, $write, $except, NULL, NULL) === false) {
         $errorcode = socket_last_error();
-        if($errorcode != ESUCCESS) {
+        if($errorcode > 0) {
             $this->stderr("socket_select() failed, reason: [$errorcode] " . socket_strerror($errorcode));
         }
-
         continue;
       }
 
@@ -122,38 +119,13 @@ abstract class WebSocketServer {
           }
         }
         else {
-          $numBytes = @socket_recv($socket, $buffer, $this->maxBufferSize, 0);
+
+          $numBytes = $this->read($socket, $buffer, $this->maxBufferSize);
+
           if ($numBytes === false) {
             $sockErrNo = socket_last_error($socket);
-
-           /* if($socketErrNo == EAGAIN || $socketErrNo == EINPROGRESS) {
-                continue;
-            } else {
-                $this->stderr("Unusual disconnect $sockErrNo on socket $socket : ". socket_strerror($sockErrNo));
-                $this->disconnect($socket, true, $sockErrNo); // disconnect before clearing error, in case someone with their own implementation wants to check for error conditions on the socket.
-            }*/
-
-            switch ($sockErrNo)
-            {
-              case 102: // ENETRESET    -- Network dropped connection because of reset
-              case 103: // ECONNABORTED -- Software caused connection abort
-              case 104: // ECONNRESET   -- Connection reset by peer
-              case 108: // ESHUTDOWN    -- Cannot send after transport endpoint shutdown -- probably more of an error on our part, if we're trying to write after the socket is closed.  Probably not a critical error, though.
-              case 110: // ETIMEDOUT    -- Connection timed out
-              case 111: // ECONNREFUSED -- Connection refused -- We shouldn't see this one, since we're listening... Still not a critical error.
-              case 112: // EHOSTDOWN    -- Host is down -- Again, we shouldn't see this, and again, not critical because it's just one connection and we still want to listen to/for others.
-              case 113: // EHOSTUNREACH -- No route to host
-              case 121: // EREMOTEIO    -- Rempte I/O error -- Their hard drive just blew up.
-              case 125: // ECANCELED    -- Operation canceled
-
-                $this->stderr("Unusual disconnect on socket  " . $sockEeeNo);
-                $this->disconnect($socket, true, $sockErrNo); // disconnect before clearing error, in case someone with their own implementation wants to check for error conditions on the socket.
-                break;
-              default:
-
-                $this->stderr('Socket error: ' . socket_strerror($sockErrNo));
-            }
-
+            $this->stderr("Unusual disconnect on socket  " . socket_strerror($sockErrNo));
+            $this->disconnect($socket, true, $sockErrNo); // disconnect before clearing error, in case someone with their own implementation wants
           }
           elseif ($numBytes == 0) {
             $sockErrNo = socket_last_error($socket);
@@ -201,13 +173,15 @@ abstract class WebSocketServer {
       }
 
       if ($triggerClosed) {
-        $this->stdout("Client disconnected. ".$disconnectedUser->socket);
+        $this->stdout("Client disconnected(1). ".$disconnectedUser->socket);
         $this->closed($disconnectedUser);
+        socket_shutdown($disconnectedUser->socket, 2);
         socket_close($disconnectedUser->socket);
       }
       else {
+        $this->stdout("Client disconnected(2): ".$disconnectedUser->socket);
         $message = $this->frame('', $disconnectedUser, 'close');
-        @socket_write($disconnectedUser->socket, $message, strlen($message));
+        $this->write($disconnectedUser->socket, $message, strlen($message));
       }
     }
   }
@@ -264,7 +238,7 @@ abstract class WebSocketServer {
     // Done verifying the _required_ headers and optionally required headers.
 
     if (isset($handshakeResponse)) {
-      socket_write($user->socket,$handshakeResponse,strlen($handshakeResponse));
+      $this->write($user->socket,$handshakeResponse,strlen($handshakeResponse));
       $this->disconnect($user->socket);
       return;
     }
@@ -284,7 +258,7 @@ abstract class WebSocketServer {
     $extensions = (isset($headers['sec-websocket-extensions'])) ? $this->processExtensions($headers['sec-websocket-extensions']) : "";
 
     $handshakeResponse = "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: $handshakeToken$subProtocol$extensions\r\n";
-    socket_write($user->socket,$handshakeResponse,strlen($handshakeResponse));
+    $this->write($user->socket,$handshakeResponse,strlen($handshakeResponse));
     $this->connected($user);
   }
 
@@ -333,9 +307,6 @@ abstract class WebSocketServer {
   }
 
   public function stderr($message) {
-    /*if ($this->interactive) {
-      echo "$message\n";
-    }*/
     $this->log($message);
   }
 
@@ -481,6 +452,7 @@ abstract class WebSocketServer {
       default:
         //$this->disconnect($user); // todo: fail connection
         $willClose = true;
+        $this->stderr("Unusual opcode ".$headers['opcode']. " user ". $user->socket);
         break;
     }
 
@@ -505,7 +477,7 @@ abstract class WebSocketServer {
 
     if ($pongReply) {
       $reply = $this->frame($payload,$user,'pong');
-      socket_write($user->socket,$reply,strlen($reply));
+      $this->write($user->socket,$reply,strlen($reply));
       return false;
     }
     if ($headers['length'] > strlen($this->applyMask($headers,$payload))) {
@@ -650,6 +622,60 @@ abstract class WebSocketServer {
       $str = "[" . date("Y/m/d h:i:s", time()) . "] " . $msg;
       fwrite($fd, $str . "\n");
       fclose($fd);
+    }
+  }
+
+  /*
+   * Write to a socket
+   */
+  private function write(&$sock, &$data, $length) {
+
+      while(true) {
+        socket_clear_error($sock);
+        $sent = @socket_write($sock, $data, $length);
+        $lastError = socket_last_error($sock);
+
+        if($sent <= 0) {
+          if ($lastError == EAGAIN) {
+            continue;
+          }
+          //TODO: handle error
+          return false;
+        }
+        if($sent < $length) {
+          $data = substr($data, $sent);
+          $length -= $sent;
+        } else {
+          return true;
+        }
+      }
+  }
+  /*
+   * Read data from socket
+   */
+  private function read(&$sock, &$data, $len=4096) {
+    $bytesCount = 0;
+    $r_data = '';
+    $data = '';
+    while(true) {
+        socket_clear_error($sock);
+        $bytes = @socket_recv($sock, $r_data, $len, MSG_DONTWAIT);
+        $lastError = socket_last_error($sock);
+        if($bytes <= 0) {
+
+          if($lastError != EAGAIN && $lastError > 0) {
+            return false;
+          }
+
+          if($lastError == EAGAIN && intval($bytes) < 0) {
+            usleep(2000);
+            continue;
+          }
+          return $bytesCount;
+        } else {
+          $data .= $r_data;
+          $bytesCount += $bytes;
+        }
     }
   }
 }

@@ -83,6 +83,7 @@ var LocationClient = {
     },
     onClose: function(evt) {
         console.log("onClose", evt);
-        alert("Server close the connection");
+        //https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent
+        alert("Server close the connection: " + event.code + "reason:" + event.reason + " wasClean: " + event.wasClean);
     }
 };
