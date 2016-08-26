@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 class MessageType {
     const SERVICE = 1;
@@ -21,7 +21,7 @@ class Message {
 
     public function __construct($client, $data) {
         $this->client = $client;
-        $this->data = $data;    
+        $this->data = $data;
     }
 
     public function getClient() {
@@ -35,13 +35,18 @@ class Message {
     }
 
     public function getType() {
-       
-        return $this->data['type'];   
+
+        return $this->data['type'];
     }
 
     public function getUser() {
 
         return $this->data['user'];
+    }
+
+    public function getID() {
+
+        return $this->data['id'];
     }
 }
 

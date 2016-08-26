@@ -37,6 +37,7 @@ class ChannelProxy {
     private $channels = array();
     private $service  = null;
     private $messagePipe = null;
+    private $commandExecuter = null;
 
     function __construct(&$service) {
         $this->service = $service;

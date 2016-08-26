@@ -6,6 +6,7 @@ require_once('./PHP-Websockets/websockets.php');
 require_once('./message.php');
 require_once('./messagepipe.php');
 require_once('./channel.php');
+require_once('./commands.php');
 
 define('MAX_BUFFER', 2048);
 

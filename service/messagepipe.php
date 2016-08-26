@@ -1,5 +1,4 @@
 <?php
-
 /**
 * Message pipe
 */
@@ -10,8 +9,9 @@ class MessagePipeLine
     private $arrayUsers = array();
 
     function __construct(&$channel) {
-
         $this->channel = $channel;
+        $this->commandExecuter = new Commands($this);
+        $this->commandExecuter->add(new PingCommand($this));
     }
 
     private function decode($jsonStrMsg) {
@@ -37,12 +37,15 @@ class MessagePipeLine
 
         $message = end($this->qmsg);
         //TODO: track users
+        if(!array_key_exists($message->getClient(), $this->arrayUsers)) {
+            $this->arrayUsers[$message->getClient()] = $message->getUser();
+        }
+
         if($message->getType() == MessageType::SERVICE) {
             $this->sendMessage($message);
         } else if($message->getType() == MessageType::SERVICE_CMD) {
-            //TODO: commands
-            $this->ping($message);
-
+            //TODO: command type
+            $this->commandExecuter->exec(MessageType::SERVICE_CMD, $message);
         } else if($message->getType() == MessageType::BROADCAST) {
             $this->broadCast($message);
         } else {
@@ -51,8 +54,6 @@ class MessagePipeLine
         }
 
         $this->remove($message);
-
-        //echo "qmsg: ".count($this->qmsg)."\n";
     }
 
     private function remove($message) {
@@ -62,23 +63,18 @@ class MessagePipeLine
         }
     }
 
-    private function broadCast($message) {
+    public function broadCast($message) {
         $encoded = $this->encode($message->getData());
         $this->channel->broadCastMessage($encoded);
     }
 
-    private function sendMessage($message) {
+    public function sendMessage($message) {
         $jsonString = $this->encode($message->getData());
         $this->channel->sendMessage($message->getClient(), $jsonString);
     }
 
-    //cmd
-    private function ping($message) {
-        $data = $message->getData();
-        $data['message'] = "PONG";
-        $data['users'] = $this->arrayUsers;
-        $serviceMessage = new Message($message->getClient(), $data);
-        $this->sendMessage($serviceMessage);
+    public function getUsers() {
+        return $this->arrayUsers;
     }
 }
 
