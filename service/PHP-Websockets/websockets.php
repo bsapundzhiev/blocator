@@ -668,7 +668,6 @@ abstract class WebSocketServer {
           }
 
           if($lastError == EAGAIN && intval($bytes) < 0) {
-            usleep(2000);
             continue;
           }
           return $bytesCount;
