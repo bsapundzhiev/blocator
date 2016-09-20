@@ -69,7 +69,8 @@ var MapSwitcher = {
 
             /* Save GeoMap */
             GeoMap = this.openstreetmap;
-
+            GeoMap.maxZoom = 15;
+            GeoMap.mapTiles = 'http://tileserver.4umaps.eu/{z}/{x}/{y}.png';
             /* Initializes the map and the search box */
             GeoMap.initMap();
             GeoMap.initSearchBox();

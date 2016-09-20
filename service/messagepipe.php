@@ -56,6 +56,12 @@ class MessagePipeLine
         $this->remove($message);
     }
 
+    function removeClient($client) {
+        if(array_key_exists($client->id, $this->arrayUsers)) {
+           unset($this->arrayUsers[$client->id]);
+        }
+    }
+
     private function remove($message) {
 
         if (($key = array_search($message, $this->qmsg)) !== false) {

@@ -59,7 +59,7 @@ class ChannelProxy {
     }
 
     function remove($client) {
-
+        $this->messagePipe->removeClient($client);
         unset($this->channels[$client->id]);
     }
 

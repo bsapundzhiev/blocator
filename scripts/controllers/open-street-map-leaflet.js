@@ -30,30 +30,22 @@ OpenStreetMap.prototype = {
 
         this.map = L.map(this.mapId, {
             center: osmPosition,
-            zoom: this.defaultZoom
+            zoom: this.defaultZoom,
+            maxZoom: this.maxZoom
         });
 
-        //this.map = L.map(this.mapId).setView(osmPosition, this.defaultPosition.coords.latitude);
-        //this.mapTiles = 'apps/locator/www/img/mapTiles/{z}/{x}/{y}.png';
 
         if(!this.mapTiles) {
             this.mapTiles = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
         }
+
         L.tileLayer(this.mapTiles, {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             subdomains: ['a','b','c']
         }).addTo( this.map );
 
-        /*
-        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-            maxZoom: 18,
-            id: 'your.mapbox.project.id',
-            accessToken: 'your.mapbox.public.access.token'
-        }).addTo(mymap);
-         */
-        /* Clear search input value */
 
+        /* Clear search input value */
         this.locatorIcon = L.icon({
             iconUrl: 'libs/OpenLayers/img/marker.png',
             //iconSize: [38, 95],
