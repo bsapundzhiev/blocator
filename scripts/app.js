@@ -12,7 +12,7 @@ var App = {
         GeolocationBox.init();
         SearchBox.init();
         MapSwitcher.init();
-        LocatorService.start("ws://127.0.0.1:9000/service");
+        LocatorService.start("ws://calipso.no-ip.info:9000/service");
 
         /* Add default contacts */
         // JSUtil.getBlobFromImagePath("img/end3r.jpeg", function(blob) {
