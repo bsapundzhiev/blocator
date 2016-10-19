@@ -94,10 +94,11 @@ h1 {
 
 #openstreetmap {
     position: absolute;
-    height: 100%;
+    height: 91%;
     width: 100%;
     background-color: #DCDCDC;
-    margin-top: 42px;
+    bottom: 0;
+    right: 0;
 }
 
 #client-switch {
@@ -109,6 +110,7 @@ h1 {
 .btn-file {
     position: relative;
     overflow: hidden;
+    margin-left: 10px;
 }
 .btn-file input[type=file] {
     position: absolute;
