@@ -4,7 +4,6 @@ var MenuView = {
     init: function () {
 
         this.attachEvents();
-
     },
 
     onSwitchCommand: function(){
@@ -12,9 +11,14 @@ var MenuView = {
         this.viewModel.onSwitchCommand(this.onoff);
     },
 
+    onFileSelected: function(file) {
+        this.viewModel.onFileSelected(file);
+    },
+
     attachEvents: function() {
 
         var onoff = this.onSwitchCommand.bind(this);
+        var fileSelect = this.onFileSelected.bind(this);
 
         $("li.dropdown").click(function() {
           $("nav.navbar").toggleClass("open");
@@ -28,6 +32,11 @@ var MenuView = {
             }
             $(this).find('.btn').toggleClass('btn-default');
             onoff();
+        });
+
+        $('#gpxfile').on("change", function() {
+
+            fileSelect($(this).get(0).files[0]);
         });
     }
 };

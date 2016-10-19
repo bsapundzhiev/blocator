@@ -7,7 +7,7 @@ function OpenStreetMap(options) { // extends Map
     this.searchButton = document.querySelector('#nominatimSearch button');
 
     this.markers = null;
-
+    this.track = null;
     this.locators = {};
     this.locatorIcon = null;
 }
@@ -121,6 +121,24 @@ OpenStreetMap.prototype = {
         this.locators[name].update();
 
         this.map.panTo(osmPosition);
+    },
+    /*
+     * Load gpx track
+     */
+    loadGeoJSON: function(geojsonFeature) {
+        if(this.track) {
+            this.map.removeLayer(this.track);
+        }
+        var lineStyle = {
+            "color": "#ff0000",
+            "weight": 5,
+            "opacity": 0.65
+        };
+        this.track = new L.geoJson(geojsonFeature, {
+            style:lineStyle
+        });
+        this.map.addLayer(this.track);
+        this.map.panTo(geojsonFeature.coordinates[0].reverse());
     },
     /*
      * handleGeolocationErrors

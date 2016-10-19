@@ -23,6 +23,8 @@ var ViewModel = {
     init: function() {
         this.settings = Object.create(SettingsModel);
         this.settings.init();
+
+        GPXParser.process = this.onGpxData.bind(this);
     },
 
     onSwitchCommand: function(onoff) {
@@ -32,6 +34,24 @@ var ViewModel = {
         } else {
             LocationClient.stopWatch();
         }
+    },
+
+    onFileSelected: function(gpxFile) {
+        GPXParser.parseFile(gpxFile);
+    },
+
+    onGpxData: function(data) {
+
+        console.log(data.trk);
+        var segments = data.trk.trkseg.trkpt;
+
+        var geoJsonFeature =  { "type": "LineString", "coordinates": [] };
+        for (var index = 0; index < segments.length; index++) {
+            var segment = segments[index];
+            geoJsonFeature.coordinates.push([segment['@lon'], segment['@lat']]);
+        }
+
+        GeoMap.loadGeoJSON(geoJsonFeature);
     }
 };
 
