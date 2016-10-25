@@ -3,12 +3,10 @@
 GeoLocator is a geolocation and geotracking web application. It let users:
 - choose among OpenStreetMap, Google Maps, and a hybrid map that is a Google Map with OpenStreetMap tiles placed on it (this feature does not work on Firefox OS at the moment: see [issue #7](https://github.com/franciov/geo/issues/7) for details)
 - track connected users on the map
-- access the address book to show all contacts on the map, look for a contact and insert a address if not provided
 
-You can try it [live](http://bsapundzhiev.github.io/geo/) or in the [Firefox OS Simulator](https://developer.mozilla.org/en/docs/Tools/Firefox_OS_Simulator).
 
-![Screenshot](https://raw.githubusercontent.com/franciov/geo/master/img/screenshots/osm-search-rome.png)
-![Screenshot](https://raw.githubusercontent.com/franciov/geo/mdn_updating_phone_contacts_from_the_web/img/screenshots/contacts-all.png)
+![Screenshot](https://lh6.googleusercontent.com/rJb4Q-Nwu8dazcW1WnMrGELbR-9jl-6t3OplXxXtpYmqFdg7johRueOOzQkQBrAl0qbgz6E3gX8fimQ=w1920-h950)
+![Screenshot](https://lh5.googleusercontent.com/RTxKglgXKtWM7ZeBHA6ibwCTYNfPB6LXwkmFsgIyqvJsJ6uPF26j9kSQxy7qcGU0TA4QspPXWtpwea4=w1920-h950)
 
 ## Notes
 Based on [geo](https://github.com/franciov/geo)code example code.
