@@ -1,12 +1,12 @@
-# GeoLocator
+# BLocator
 
 BLocator is a geolocation and geotracking web application. It let users:
 - choose among OpenStreetMap, Google Maps, and a hybrid map that is a Google Map with OpenStreetMap tiles placed on it (this feature does not work on Firefox OS at the moment: see [issue #7](https://github.com/franciov/geo/issues/7) for details)
 - track connected users on the map
 
 
-![Screenshot](https://lh6.googleusercontent.com/tjF3ZCJda4JGjzhaxvAI6dTzYVQjhI4WUphV_bGfX3B7txA9CW9EYtXMI5JCj8r7AUq1qKHPqyG8GZ0=w1920-h950)
-![Screenshot](https://lh5.googleusercontent.com/RTxKglgXKtWM7ZeBHA6ibwCTYNfPB6LXwkmFsgIyqvJsJ6uPF26j9kSQxy7qcGU0TA4QspPXWtpwea4=w1920-h950)
+![Screenshot](https://lh3.googleusercontent.com/bt12P4cM6l-vgeCnuhIW0hjtVz0Z87-_Vgvrzfux5vRom3ePnuxehfgXFZjB0Awxv91QAk9B0KW9ubI)
+![Screenshot](https://lh6.googleusercontent.com/QXC90amaSls_84pVW0kQFBE5QsrurNcxcVSJTJaf8HCoNH_fiCv5uVytKVKwOlIxz7T_Eu-8-RKeWb4)
 
 ## Notes
 Based on [geo](https://github.com/franciov/geo)code example code.
