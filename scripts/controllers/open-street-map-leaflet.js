@@ -118,7 +118,13 @@ OpenStreetMap.prototype = {
                 text += "<br/><b>Prov:"+ position.provider +"</b>";
             }
             if(position.accuracy) {
-                text += "<br/><b>Acc:"+ position.accuracy.toFixed(0) +"</b>";
+                text += "<b>,Acc:"+ position.accuracy.toFixed(0) +"</b>";
+            }
+            if(position.bearing) {
+                text += "<b>,H:"+ JSUtil.bearingWordTo(position.bearing) +"</b>";
+            }
+            if(position.time) {
+                text += "<br/><b>T:"+ new Date(position.time).toLocaleTimeString() +"</b>";
             }
 
             marker.bindPopup(text).openPopup();

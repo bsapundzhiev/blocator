@@ -51,12 +51,12 @@ var LocationClient = {
         this.position = {
             coords: {
                 longitude: location.longitude,
-                latitude: location.latitude,
-                bearing : location.bearing
+                latitude: location.latitude
             },
             accuracy: location.accuracy,
             altitude: location.altitude,
             provider: location.provider,
+            bearing : location.bearing,
             time: location.time
         };
 

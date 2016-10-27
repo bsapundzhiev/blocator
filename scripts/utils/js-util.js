@@ -43,6 +43,19 @@ var JSUtil = {
             hash = ~~(((hash << 5) - hash) + str.charCodeAt(i));
         }
         return hash;
+    },
+
+    bearingWordTo: function(bearing) {
+        var bearingword = '';
+        if      (bearing >=  22 && bearing <=  67) bearingword = 'NE';
+        else if (bearing >=  67 && bearing <= 112) bearingword =  'E';
+        else if (bearing >= 112 && bearing <= 157) bearingword = 'SE';
+        else if (bearing >= 157 && bearing <= 202) bearingword =  'S';
+        else if (bearing >= 202 && bearing <= 247) bearingword = 'SW';
+        else if (bearing >= 247 && bearing <= 292) bearingword =  'W';
+        else if (bearing >= 292 && bearing <= 337) bearingword = 'NW';
+        else if (bearing >= 337 || bearing <=  22) bearingword =  'N';
+        return bearingword;
     }
 
 };
