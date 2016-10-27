@@ -74,12 +74,34 @@ var MapSwitcher = {
             /* Initializes the map and the search box */
             GeoMap.initMap();
             GeoMap.initSearchBox();
+            GPXParser.process = this.processEvent.bind(this);
         }
         else {
             /* Save GeoMap */
             GeoMap = this.openstreetmap;
         }
 
+        GPXParser.makeRequest("GET","event.gpx").then(function(response){
+            GPXParser.parseFile(new Blob([response]));
+        }).catch(function(error) {
+            console.log(error);
+        });
+    },
+    /**
+     * [processEvent description]
+     * @param  {[type]} data [description]
+     * @return {[type]}      [description]
+     */
+    processEvent: function(data) {
+        //console.log(data.trk);
+        var segments = data.trk.trkseg.trkpt;
+        var geoJsonFeature =  { "type": "LineString", "coordinates": [] };
+        for (var index = 0; index < segments.length; index++) {
+            var segment = segments[index];
+            geoJsonFeature.coordinates.push([segment['@lon'], segment['@lat']]);
+        }
+
+        GeoMap.loadGeoJSON(geoJsonFeature);
     },
     /*
      * switchToGoogleMap
