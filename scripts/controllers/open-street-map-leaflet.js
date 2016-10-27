@@ -113,7 +113,15 @@ OpenStreetMap.prototype = {
 
         if(!this.locators[name]) {
             var marker = L.marker(osmPosition).addTo(this.map);
-            marker.bindPopup("<b>"+ name +"</b>").openPopup();
+            var text = "<b>"+ name +"</b>";
+            if(position.provider) {
+                text += "<br/><b>Prov:"+ position.provider +"</b>";
+            }
+            if(position.accuracy) {
+                text += "<br/><b>Acc:"+ position.accuracy.toFixed(0) +"</b>";
+            }
+
+            marker.bindPopup(text).openPopup();
 
             var trackLine = new L.Polyline([], {
                 color: 'red',

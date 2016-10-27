@@ -23,13 +23,16 @@
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
     </platform>
-    <plugin name="cordova-plugin-geolocation" spec="~2.2.0" />
     <plugin name="cordova-plugin-console" spec="~1.0.3" />
     <platform name="android">
-        <icon src="res/android/mipmap-hdpi/ic_launcher.png" density="mdpi" />
-        <icon src="res/android/mipmap-hdpi/ic_launcher.png" density="hdpi" />
-        <icon src="res/android/mipmap-xhdpi/ic_launcher.png" density="xhdpi" />
-        <icon src="res/android/mipmap-xxhdpi/ic_launcher.png" density="xxhdpi" />
-        <icon src="res/android/mipmap-xxhdpi/ic_launcher.png" density="xxxhdpi" />
+        <icon density="mdpi" src="res/android/mipmap-hdpi/ic_launcher.png" />
+        <icon density="hdpi" src="res/android/mipmap-hdpi/ic_launcher.png" />
+        <icon density="xhdpi" src="res/android/mipmap-xhdpi/ic_launcher.png" />
+        <icon density="xxhdpi" src="res/android/mipmap-xxhdpi/ic_launcher.png" />
+        <icon density="xxxhdpi" src="res/android/mipmap-xxhdpi/ic_launcher.png" />
     </platform>
+    <plugin name="cordova-plugin-mauron85-background-geolocation" spec="~2.2.4">
+        <variable name="ACCOUNT_TYPE" value="$PACKAGE_NAME.account" />
+        <variable name="CONTENT_AUTHORITY" value="$PACKAGE_NAME" />
+    </plugin>
 </widget>

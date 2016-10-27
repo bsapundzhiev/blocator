@@ -4,15 +4,10 @@
 
 var LocationClient = {
     opt: null,
-    watchGeo: null,
     client: null,
-
+    position: null,
     startWatch: function(settings) {
         console.log("startWatch()");
-        if(this.watchGeo) {
-            this.stopWatch();
-        }
-
         this.client = Object.create(WSClient);
         this.client.name = settings.user.userName;
         this.client.id = _.uniqueId("uid_");
@@ -25,27 +20,49 @@ var LocationClient = {
         var locationCb = this.onLocation.bind(this);
         //connect to server
         this.client.init(settings.user.service);
-        this.watchGeo = navigator.geolocation.watchPosition(locationCb, this.onError, settings.gps);
+
+        backgroundGeolocation.stop();
+        backgroundGeolocation.configure(locationCb, this.onError, {
+            desiredAccuracy: 10,
+            notificationIconColor: '#4CAF50',
+            notificationTitle: 'Background tracking',
+            notificationText: 'ENABLED',
+            notificationIconLarge: 'icon_large', //filename without extension
+            notificationIconSmall: 'icon_small', //filename without extension
+            //debug: true, // <-- enable this hear sounds for background-geolocation life-cycle.
+            stopOnTerminate: true, // <-- enable this to clear background location settings when the app terminates
+            locationProvider: backgroundGeolocation.provider.ANDROID_ACTIVITY_PROVIDER,
+            interval: 5000, // <!-- poll for position every minute
+            fastestInterval: 5000
+        });
+        backgroundGeolocation.start();
     },
 
     stopWatch: function() {
         console.log("stopWatch()");
-        navigator.geolocation.clearWatch(this.watchGeo);
-        this.watchGeo = null;
+        backgroundGeolocation.stop();
         this.client.close();
         delete this.client;
     },
 
-    onLocation: function(position) {
-        GeoMap.showLocatorPosition(this.client.name, position);
-        //send location to service
-        var location = {
+    onLocation: function(location) {
+        console.log("onLocation", location);
+
+        this.position = {
             coords: {
-                latitude:position.coords.latitude,
-                longitude: position.coords.longitude
-            }
+                longitude: location.longitude,
+                latitude: location.latitude,
+                bearing : location.bearing
+            },
+            accuracy: location.accuracy,
+            altitude: location.altitude,
+            provider: location.provider,
+            time: location.time
         };
-        this.sendMessage(MessageType.SERVICE, location);
+
+        GeoMap.showLocatorPosition(this.client.name, this.position);
+        this.sendMessage(MessageType.SERVICE, this.position);
+        backgroundGeolocation.finish();
     },
 
     onConnected: function() {
@@ -84,6 +101,6 @@ var LocationClient = {
     onClose: function(evt) {
         console.log("onClose", evt);
         //https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent
-        alert("Server close the connection: " + event.code + "reason:" + event.reason + " wasClean: " + event.wasClean);
+        alert("Server close the connection: " + event.code + "\nreason:" + event.reason);
     }
 };
