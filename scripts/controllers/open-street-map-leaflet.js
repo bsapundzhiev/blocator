@@ -114,11 +114,28 @@ OpenStreetMap.prototype = {
         if(!this.locators[name]) {
             var marker = L.marker(osmPosition).addTo(this.map);
             marker.bindPopup("<b>"+ name +"</b>").openPopup();
-            this.locators[name] = marker;
+
+            var trackLine = new L.Polyline([], {
+                color: 'red',
+                weight: 3,
+                opacity: 0.5,
+                smoothFactor: 1
+            }).addTo(this.map);
+
+            this.locators[name] = {
+                marker: marker,
+                trackLine: trackLine,
+            };
         }
 
-        this.locators[name].setLatLng(osmPosition);
-        this.locators[name].update();
+        this.locators[name].marker.setLatLng(osmPosition);
+        this.locators[name].marker.update();
+
+        if (this.locators[name].trackLine.getLatLngs().length > 60) {
+            this.locators[name].trackLine.spliceLatLngs(0, 1);
+        }
+        this.locators[name].trackLine.addLatLng(osmPosition)
+        this.locators[name].trackLine.redraw();
 
         this.map.panTo(osmPosition);
     },
