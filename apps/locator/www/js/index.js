@@ -42,9 +42,13 @@ var ViewModel = {
 
     onGpxData: function(data) {
 
-        console.log(data.trk);
         var segments = data.trk.trkseg.trkpt;
-
+        if (Array.isArray(data.trk.trkseg)) {
+            segments = [];
+            data.trk.trkseg.forEach(function (segment) {
+                segments = segments.concat(segment.trkpt);
+            });
+        }
         var geoJsonFeature =  { "type": "LineString", "coordinates": [] };
         for (var index = 0; index < segments.length; index++) {
             var segment = segments[index];
