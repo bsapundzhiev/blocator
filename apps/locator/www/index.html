@@ -69,8 +69,8 @@
                         GPX track <input id="gpxfile" type="file">
                     </span>
                 </li>
-                <li class="dropdown" id="menuLogin">
-                <a class="dropdown-toggle" href="#" data-toggle="dropdown" id="menu-user">Client</a>
+                <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="menu-geolocation">Location Client<i class="fa fa-angle-down flipped"></i></a>
                 <div class="dropdown-menu" style="padding:17px;">
                     <form>
                         <div class="form-group">
@@ -78,28 +78,20 @@
                             <input type="text" class="form-control" id="client-username" placeholder="Example input">
                         </div>
                         <div class="form-group">
-                            <label for="formGroupExampleInput2">Another label</label>
-                            <input type="text" class="form-control" id="formGroupExampleInput2" placeholder="Another input">
-                        </div>
-                    </form>
-                </div>
-                <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="menu-geolocation">Geo Location<i class="fa fa-angle-down flipped"></i></a>
-                <div class="dropdown-menu" style="padding:17px;">
-                    <form>
-                        <div class="form-group">
                             <label for="geo-location-timeout">Timeout</label>
                             <input type="text" class="form-control" id="geo-location-timeout" placeholder="Example input">
                         </div>
                         <div class="checkbox">
-                            <label><input type="checkbox" id="geo-accuracy">High accuracy</label>
+                            <label><input type="checkbox" cheked="checked" id="geo-accuracy">High accuracy</label>
                         </div>
                         <div class="checkbox">
-                            <label><input type="checkbox" id="geo-create-track">Track</label>
+                            <label><input type="checkbox" cheked="checked" id="server-track">Track on server</label>
                         </div>
+                        <button id="register-send" type="button" class="btn btn-default">Send</button>
                     </form>
                 </div>
                 </li>
+                <!--
                 <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="menu-chat">Messages<i class="fa fa-angle-down flipped"></i></a>
                 <div class="dropdown-menu" style="padding:17px;">
@@ -115,6 +107,7 @@
                     </form>
                 </div>
                 </li>
+                -->
                 <li class="nav-link"><a href="#">Help</a></li>
                 <li class="nav-link"><a href="#">About</a></li>
               </ul>
@@ -154,20 +147,6 @@
         <script type="text/javascript" src="js/view/menu.js"></script>
         <!-- models -->
         <script type="text/javascript" src="js/model/settings.js"></script>
-        <!--
-        <script type="text/javascript">
-           $( document ).ready(function() {
-
-            $('.btn-toggle').click(function() {
-                $(this).find('.btn').toggleClass('active');
-                if ($(this).find('.btn-primary').length > 0) {
-                    $(this).find('.btn').toggleClass('btn-primary');
-                }
-                $(this).find('.btn').toggleClass('btn-default');
-            });
-        });
-        </script>
-        -->
 
     </body>
 </html>

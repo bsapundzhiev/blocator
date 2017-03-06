@@ -36,19 +36,39 @@ var ViewModel = {
         }
     },
 
+    onRegister: function (settings) {
+        this.settings.setUser(settings.user);
+    },
+
     onFileSelected: function(gpxFile) {
         GPXParser.parseFile(gpxFile);
     },
 
     onGpxData: function(data) {
 
-        var segments = data.trk.trkseg.trkpt;
+        var segments = [];
+        //merge combined tracks
+        if (Array.isArray(data.trk)) {
+            var trkseg = [];
+            data.trk.forEach(function (segment) {
+                if (segment.name && !data.trk.name) {
+                    data.trk.name = segment.name;
+                }
+                trkseg.push(segment.trkseg);
+            });
+            data.trk.trkseg = trkseg;
+        }
+
+        //check for segments
         if (Array.isArray(data.trk.trkseg)) {
-            segments = [];
             data.trk.trkseg.forEach(function (segment) {
                 segments = segments.concat(segment.trkpt);
             });
+
+        } else {
+            segments = data.trk.trkseg.trkpt;
         }
+
         var geoJsonFeature =  { "type": "LineString", "coordinates": [] };
         for (var index = 0; index < segments.length; index++) {
             var segment = segments[index];
@@ -96,8 +116,11 @@ var app = {
             defaultZoom: 12
         });
         GeoMap.cordova = true;
-        /* Initializes the map and the search box */
+        
+        GeoMap.maxZoom = 15;
+        GeoMap.mapTiles = 'http://tileserver.4umaps.eu/{z}/{x}/{y}.png';
         //GeoMap.mapTiles = 'img/mapTiles/{z}/{x}/{y}.png';
+
         GeoMap.initMap();
         ViewModel.init();
 

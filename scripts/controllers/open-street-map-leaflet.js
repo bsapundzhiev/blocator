@@ -36,7 +36,7 @@ OpenStreetMap.prototype = {
 
 
         if(!this.mapTiles) {
-            this.mapTiles = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+            this.mapTiles = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
         }
 
         L.tileLayer(this.mapTiles, {
