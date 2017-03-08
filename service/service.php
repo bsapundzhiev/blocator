@@ -23,12 +23,15 @@ class LocatorServer extends WebSocketServer implements ILocatorService {
 
   public function __construct($addr, $port, $maxBuf)
   {
-  	/* Allow the script to hang around waiting for connections. */
-	set_time_limit(0);
+    error_reporting(E_ALL);
 
-	/* Turn on implicit output flushing so we see what we're getting
- 	* as it comes in. */
-	ob_implicit_flush();
+  	/* Allow the script to hang around waiting for connections. */
+    set_time_limit(0);
+
+	 /* Turn on implicit output flushing so we see what we're getting
+ 	  * as it comes in. */
+    ob_implicit_flush();
+    
     parent::__construct($addr, $port, $maxBuf);
     //$this->maxBufferSize = MAX_BUFFER;
     $this->chan = new ChannelProxy($this);
