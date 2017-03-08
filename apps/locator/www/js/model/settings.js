@@ -10,19 +10,25 @@ var SettingsModel = {
     },
 
     restore: function() {
-
-        if (localStorage.getItem("username")) {
-            this.user = localStorage.getItem("username");
+        var username = localStorage.getItem("username");
+       
+        if (username) {
+            console.log("username: ", username);
+            this.user = JSON.parse(username);
         }
 
-       if(localStorage.getItem("gps")) {
-            this.gps = localStorage.getItem("gps");
+        var gps = localStorage.getItem("gps");
+        
+        if (gps) {
+            console.log("gps: ", gps);
+            this.gps = JSON.parse(gps);
         }
     },
 
     store: function() {
-        localStorage.setItem("username", this.user);
-        localStorage.setItem("gps", this.gps);
+        console.log("store username", this.user);
+        localStorage.setItem("username", JSON.stringify(this.user));
+        localStorage.setItem("gps", JSON.stringify(this.gps));
     },
 
     setUser: function(userName) {

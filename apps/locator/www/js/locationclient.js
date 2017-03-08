@@ -23,13 +23,15 @@ var LocationClient = {
 
         backgroundGeolocation.stop();
         backgroundGeolocation.configure(locationCb, this.onError, {
-            desiredAccuracy: 10,
             notificationIconColor: '#4CAF50',
             notificationTitle: 'Background tracking',
             notificationText: 'ENABLED',
             notificationIconLarge: 'icon_large', //filename without extension
             notificationIconSmall: 'icon_small', //filename without extension
             //debug: true, // <-- enable this hear sounds for background-geolocation life-cycle.
+            desiredAccuracy: 10,
+            stationaryRadius: 0,
+            distanceFilter: 0,
             stopOnTerminate: true, // <-- enable this to clear background location settings when the app terminates
             locationProvider: backgroundGeolocation.provider.ANDROID_ACTIVITY_PROVIDER,
             interval: 5000, // <!-- poll for position every minute
