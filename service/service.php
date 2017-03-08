@@ -7,8 +7,10 @@ require_once('./message.php');
 require_once('./messagepipe.php');
 require_once('./channel.php');
 require_once('./commands.php');
-
-define('MAX_BUFFER', 2048);
+//service config
+define('SERVER_PORT', 9000);
+define('SERVER_ADRR', "0.0.0.0");
+define('SERVER_MAX_BUFFER', 2048);
 
 interface ILocatorService {
   public function sendMessage($user, $message);
@@ -21,8 +23,14 @@ class LocatorServer extends WebSocketServer implements ILocatorService {
 
   public function __construct($addr, $port, $maxBuf)
   {
+  	/* Allow the script to hang around waiting for connections. */
+	set_time_limit(0);
+
+	/* Turn on implicit output flushing so we see what we're getting
+ 	* as it comes in. */
+	ob_implicit_flush();
     parent::__construct($addr, $port, $maxBuf);
-    $this->maxBufferSize = 4096;
+    //$this->maxBufferSize = MAX_BUFFER;
     $this->chan = new ChannelProxy($this);
   }
 
@@ -60,7 +68,7 @@ class Program {
           die("Use cli");
         }
         try {
-          self::$service = new LocatorServer("0.0.0.0", "9000", MAX_BUFFER);
+          self::$service = new LocatorServer(SERVER_ADRR, SERVER_PORT, SERVER_MAX_BUFFER);
           //self::$service->log("Sever started");
           /*$fd = @fopen("pidfile.pid", "w");
           if($fd) {
