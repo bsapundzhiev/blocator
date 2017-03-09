@@ -94,28 +94,7 @@ var MapSwitcher = {
      */
     processEvent: function(data) {
 
-        var segments = [];
-        //merge combined tracks
-        if (Array.isArray(data.trk)) {
-            var trkseg = [];
-            data.trk.forEach(function (segment) {
-                if (segment.name && !data.trk.name) {
-                    data.trk.name = segment.name;
-                }
-                trkseg.push(segment.trkseg);
-            });
-            data.trk.trkseg = trkseg;
-        }
-
-        //check for segments
-        if (Array.isArray(data.trk.trkseg)) {
-            data.trk.trkseg.forEach(function (segment) {
-                segments = segments.concat(segment.trkpt);
-            });
-
-        } else {
-            segments = data.trk.trkseg.trkpt;
-        }
+        var segments = GPXParser.gpxGetSegments(data);
         
         var geoJsonFeature =  { "type": "LineString", "coordinates": [] };
         for (var index = 0; index < segments.length; index++) {

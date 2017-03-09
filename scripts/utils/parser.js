@@ -8,34 +8,89 @@ var GPXParser = (function() {
 
     function parseFile(file) {
 
-        var reader = new FileReader();
-        reader.onload = function(event) {
-          var textFile = event.target;
-          parse(textFile.result);
-        };
-        reader.onerror = function(event) {
-          alert("File reader Error");
-        };
+      var reader = new FileReader();
+      reader.onload = function(event) {
+        var textFile = event.target;
+        parse(textFile.result);
+      };
+      reader.onerror = function(event) {
+        alert("File reader Error");
+      };
 
-        reader.readAsText(file);
+      reader.readAsText(file);
     }
 
     function parse(XMLstr) {
-        var oParser = new DOMParser();
-        var oDOM = oParser.parseFromString(XMLstr, "text/xml");
+      var oParser = new DOMParser();
+      var oDOM = oParser.parseFromString(XMLstr, "text/xml");
 
-        if(oDOM.documentElement.nodeName != 'gpx') {
-          throw("File has no gpx data");
-        }
+      if (oDOM.documentElement.nodeName != 'gpx') {
+        throw("File has no gpx data");
+      }
 
-        var gpxData = xmlToJson(oDOM).gpx;
-        if(exports.process) {
-          exports.process(gpxData);
+      var gpxData = xmlToJson(oDOM).gpx;
+      if (exports.process && isValid(gpxData)) {
+        exports.process(gpxData);
+      }
+    }
+
+    function isValid(parsedGPXData) {
+      if(parsedGPXData.trk || parsedGPXData.rte) return true;
+      throw("Fix parser");
+    }
+
+    function getName(parsedGPXData) {
+      return isTrack(parsedGPXData) ? parsedGPXData.trk.name : parsedGPXData.rte.name;
+    }
+
+    function isTrack(parsedGPXData) {
+      return (parsedGPXData.trk != null);
+    }
+
+    function  gpxGetTrackSegments(data) {
+      var segment;
+      //merge combined tracks
+      if (Array.isArray(data.trk)) {
+        var trkseg = [];
+        data.trk.forEach(function (segment) {
+          if (segment.name && !data.trk.name) {
+            data.trk.name = segment.name;
+          }
+          trkseg.push(segment.trkseg);
+        });
+        data.trk.trkseg = trkseg;
+      }
+
+      //check for segments
+      if (Array.isArray(data.trk.trkseg)) {
+        data.trk.trkseg.forEach(function (segment) {
+          segments = segments.concat(segment.trkpt);
+        });
+
+      } else {
+        segments = data.trk.trkseg.trkpt;
+      }
+
+      return segments;
+    }
+
+    function gpxGetRouteSegments(data) {
+      return data.rte.rtept;
+    }
+
+    function gpxGetSegments(data) {
+        var segments = [];
+        if(GPXParser.isTrack(data)){
+          segments = gpxGetTrackSegments(data);
+        } else {
+          segments = gpxGetRouteSegments(data);
         }
+        
+        return segments;
     }
 
     //
-    //https://davidwalsh.name/convert-xml-json
+    // https://davidwalsh.name/convert-xml-json
     //
     function xmlToJson(xml) {
 
@@ -117,6 +172,9 @@ var GPXParser = (function() {
     exports.parseFile = parseFile;
     exports.makeRequest = makeRequest;
     exports.process = null;
+    exports.isTrack = isTrack;
+    exports.getName = getName;
+    exports.gpxGetSegments = gpxGetSegments;
     return exports;
 
 })();
