@@ -4,21 +4,26 @@ var SettingsModel = {
     gps: null,
 
     init: function() {
-        this.user = { userName: _.uniqueId('User_'), service: "ws://calipso.no-ip.info:9000/client"};
+        this.user = {
+            userName: _.uniqueId('User_'),
+            service:  "ws://calipso.no-ip.info:9000/client",
+            connect:  true
+        };
+
         this.gps  = { timeout: 30000, enableHighAccuracy: true };
         this.restore();
     },
 
     restore: function() {
         var username = localStorage.getItem("username");
-       
+
         if (username) {
             console.log("username: ", username);
             this.user = JSON.parse(username);
         }
 
         var gps = localStorage.getItem("gps");
-        
+
         if (gps) {
             console.log("gps: ", gps);
             this.gps = JSON.parse(gps);
@@ -31,8 +36,8 @@ var SettingsModel = {
         localStorage.setItem("gps", JSON.stringify(this.gps));
     },
 
-    setUser: function(userName) {
-        this.user.userName = userName;
-        this.store(); 
+    setUser: function(userSettings) {
+        this.user = userSettings;
+        this.store();
     }
 };

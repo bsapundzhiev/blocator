@@ -1,7 +1,10 @@
 var MenuView = {
     onoff: false,
 
-    init: function () {
+    init: function (model) {
+
+        this.viewModel = model;
+        this.viewModel.updateSettings = this.updateSettings;
 
         this.attachEvents();
     },
@@ -18,6 +21,13 @@ var MenuView = {
     onRegister: function(settings) {
 
         this.viewModel.onRegister(settings);
+    },
+
+
+    updateSettings: function (settings) {
+        $('#client-username').val(settings.user.userName);
+        $('#client-service').val(settings.user.service);
+        $('#server-track').prop('checked', settings.user.connect);
     },
 
     attachEvents: function() {
@@ -46,13 +56,17 @@ var MenuView = {
         });
 
         $('#register-send').on("click", function() {
-            var user = $("#client-username").val();
-            if(!user) {
+
+            if(!$("#client-username").val()) {
                 alert("Enter user name");
                 return;
             }
-            
-            register({user: user});
+
+            register({
+                userName : $("#client-username").val(),
+                service : $('#client-service').val(),
+                connect : $('#server-track').is(':checked')
+            });
         });
     }
 };

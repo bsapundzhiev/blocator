@@ -25,6 +25,7 @@ var ViewModel = {
         this.settings.init();
 
         GPXParser.process = this.onGpxData.bind(this);
+        this.updateSettings(this.settings);
     },
 
     onSwitchCommand: function(onoff) {
@@ -36,8 +37,9 @@ var ViewModel = {
         }
     },
 
-    onRegister: function (settings) {
-        this.settings.setUser(settings.user);
+    onRegister: function (userSettings) {
+        this.settings.setUser(userSettings);
+        this.updateSettings(this.settings);
     },
 
     onFileSelected: function(gpxFile) {
@@ -47,7 +49,6 @@ var ViewModel = {
     onGpxData: function(data) {
 
         var segments = GPXParser.gpxGetSegments(data);
-        
         var geoJsonFeature =  { "type": "LineString", "coordinates": [] };
         for (var index = 0; index < segments.length; index++) {
             var segment = segments[index];
@@ -94,18 +95,18 @@ var app = {
             mapId: 'openstreetmap',
             defaultZoom: 12
         });
+
         GeoMap.cordova = true;
-        
-        GeoMap.maxZoom = 15;
-        GeoMap.mapTiles = 'http://tileserver.4umaps.eu/{z}/{x}/{y}.png';
+        GeoMap.mapTiles = 'http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png';
         //GeoMap.mapTiles = 'img/mapTiles/{z}/{x}/{y}.png';
 
         GeoMap.initMap();
-        ViewModel.init();
 
         menuView = Object.create(MenuView);
-        menuView.init();
-        menuView.viewModel = ViewModel;
+        menuView.init(ViewModel);
+
+        ViewModel.init();
+
     }
 };
 
